@@ -17,46 +17,76 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<List<BookDTO>> GetBooksAsync()
+    public async Task<List<BookDTO>> GetBooks()
     {
         List<BookDTO> list = new List<BookDTO>([]);
-        await Task.Run(() =>
-        {
-            list = _booksDataService.GetBooks().Select(b => new BookDTO(
+        var retrievedList = await _booksDataService.GetBooks();
+        return retrievedList.Select(b => new BookDTO(
                 b.Id,
                 b.Title,
                 b.Author
-                )).ToList();
-        });
-        return list;
+            )).ToList();
     }
 
     [HttpPost]
     public async Task<Boolean> CreateBookAsync([FromBody] CreateBookDto book)
     {
         bool result = false;
-        await Task.Run(() =>
+        await _booksDataService.AddBook(new Book
         {
-            try
-            {
-                _booksDataService.AddBook(new Book
-                {
-                    Title = book.title,
-                    Author = book.author
-                });
-                result = true;
-            }
-            catch
-            {
-                result = false;
-            }
+            Title = book.title,
+            Author = book.author
         });
         return result;
     }
 
     [HttpPut("{id}")]
-    public async Task<BookDTO> updateBook([FromRoute] string id, [FromBody] CreateBookDto book)
+    public async Task<ApiGeneralResponse<CreateBookDto>> UpdateBook([FromRoute] string id, [FromBody] CreateBookDto book)
     {
+        ApiGeneralResponse<CreateBookDto> result = new();
+        var updatedBook = new Book
+        {
+            Title = book.title,
+            Author = book.author
+        };
+        try
+        {
+            await _booksDataService.UpdateBook(id, updatedBook);
+            result.Result = book;
+        }
+        catch
+        {
+            result.error = true;
+        }
+        return result;
+    }
 
+    [HttpGet("{id}")]
+    public async Task<ApiGeneralResponse<BookDTO>> GetBook([FromRoute] string id)
+    {
+        ApiGeneralResponse<BookDTO> result = new();
+        var retrievedBook = await _booksDataService.GetBookById(id);
+        if (retrievedBook is null)
+        {
+            result.Success = false;
+        }
+        else
+        {
+            result.Result = new BookDTO
+            (
+                retrievedBook.Id,
+                retrievedBook.Title,
+                retrievedBook.Author
+            );
+        }
+        return result;
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ApiGeneralResponse<bool>> DeleteBook([FromRoute] string id)
+    {
+        ApiGeneralResponse<bool> result = new();
+        await _booksDataService.DeleteBook(id);
+        return result;
     }
 }

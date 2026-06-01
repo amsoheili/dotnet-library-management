@@ -1,18 +1,28 @@
+using library_management.Data;
 using library_management.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 namespace library_management.Services;
 
 public interface IBooksDataService
 {
-    public List<Book> GetBooks();
-    public Book GetBookById(string id);
-    public void AddBook(Book book);
-    public void DeleteBook(string id);
-    public Book UpdateBook(string id, Book book);
+    public Task<List<Book>> GetBooks();
+    public Task<Book> GetBookById(string id);
+    public Task AddBook(Book book);
+    public Task DeleteBook(string id);
+    public Task<Book> UpdateBook(string id, Book book);
 }
 
 public class BooksDataService : IBooksDataService
 {
+    private readonly AppDbContext _context;
+
+    public BooksDataService(AppDbContext context)
+    {
+        _context = context;
+    }
+
     public List<Book> BookList = new List<Book>([
         new Book{Id = "1",Title = "b1", Author = "a1"},
         new Book{Id = "2",Title = "b2", Author = "a2"},
@@ -21,30 +31,37 @@ public class BooksDataService : IBooksDataService
         new Book{Id = "5",Title = "b5", Author = "a5"},
     ]);
 
-    public void AddBook(Book book)
+    public async Task AddBook(Book book)
     {
-        BookList.Add(book);
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
     }
 
-    public Book GetBookById(string id)
+    public async Task<Book> GetBookById(string id)
     {
-        return BookList?.Find(b => b.Id == id);
+        return await _context.Books.SingleOrDefaultAsync(b => String.Equals(b.Id, id));
     }
 
-    public List<Book> GetBooks()
+    public async Task<List<Book>> GetBooks()
     {
-        return BookList;
+        return await _context.Books.AsNoTracking().ToListAsync();
     }
 
-    public void DeleteBook(string id)
+    public async Task DeleteBook(string id)
     {
-        BookList.RemoveAll(b => b.Id == id);
+        var book = await _context.Books.FindAsync(id);
+        if (book is null) return;
+        _context.Books.Remove(book);
+        await _context.SaveChangesAsync();
     }
 
-    public Book UpdateBook(string id, Book book)
+    public async Task<Book> UpdateBook(string id, Book book)
     {
-        var existingBookIndex = BookList.FindIndex(b => b.Id == id);
-        BookList[existingBookIndex] = book;
+        var retrievedBook = await _context.Books.FindAsync(id);
+        if (retrievedBook is null) return new Book();
+        retrievedBook.Title = book.Title;
+        retrievedBook.Author = book.Author;
+        await _context.SaveChangesAsync();
         return book;
     }
 
