@@ -24,7 +24,7 @@ public class BooksController : ControllerBase
         return retrievedList.Select(b => new BookDTO(
                 b.Id,
                 b.Title,
-                b.Author
+                b.AuthorId
             )).ToList();
     }
 
@@ -34,8 +34,8 @@ public class BooksController : ControllerBase
         bool result = false;
         await _booksDataService.AddBook(new Book
         {
-            Title = book.title,
-            Author = book.author
+            Title = book.Title,
+            AuthorId = book.AuthorId
         });
         return result;
     }
@@ -46,8 +46,8 @@ public class BooksController : ControllerBase
         ApiGeneralResponse<CreateBookDto> result = new();
         var updatedBook = new Book
         {
-            Title = book.title,
-            Author = book.author
+            Title = book.Title,
+            AuthorId = book.AuthorId
         };
         try
         {
@@ -76,7 +76,7 @@ public class BooksController : ControllerBase
             (
                 retrievedBook.Id,
                 retrievedBook.Title,
-                retrievedBook.Author
+                retrievedBook.AuthorId
             );
         }
         return result;

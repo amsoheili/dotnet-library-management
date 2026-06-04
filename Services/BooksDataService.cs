@@ -23,14 +23,6 @@ public class BooksDataService : IBooksDataService
         _context = context;
     }
 
-    public List<Book> BookList = new List<Book>([
-        new Book{Id = "1",Title = "b1", Author = "a1"},
-        new Book{Id = "2",Title = "b2", Author = "a2"},
-        new Book{Id = "3",Title = "b3", Author = "a3"},
-        new Book{Id = "4",Title = "b4", Author = "a4"},
-        new Book{Id = "5",Title = "b5", Author = "a5"},
-    ]);
-
     public async Task AddBook(Book book)
     {
         _context.Books.Add(book);

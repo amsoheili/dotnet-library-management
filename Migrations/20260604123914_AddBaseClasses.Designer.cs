@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using library_management.Data;
 
@@ -11,9 +12,11 @@ using library_management.Data;
 namespace library_management.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260604123914_AddBaseClasses")]
+    partial class AddBaseClasses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,10 +58,6 @@ namespace library_management.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("LibrarianId")
                         .HasColumnType("varchar(255)");
@@ -195,7 +194,7 @@ namespace library_management.Migrations
                         .WithMany("WrittenBooks")
                         .HasForeignKey("AuthorId");
 
-                    b.HasOne("Library", "Library")
+                    b.HasOne("Library", null)
                         .WithMany("Books")
                         .HasForeignKey("LibraryId");
 
@@ -208,8 +207,6 @@ namespace library_management.Migrations
                         .HasForeignKey("PersonId1");
 
                     b.Navigation("Author");
-
-                    b.Navigation("Library");
                 });
 
             modelBuilder.Entity("Library", b =>

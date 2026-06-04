@@ -14,6 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IBooksDataService, BooksDataService>();
+builder.Services.AddScoped<ILibraryService, LibraryService>();
 
 builder.Services.AddEndpointsApiExplorer();
 
