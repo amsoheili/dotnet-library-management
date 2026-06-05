@@ -6,41 +6,35 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace library_management.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBaseClasses : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Author",
-                table: "Books");
-
-            migrationBuilder.AddColumn<string>(
-                name: "AuthorId",
-                table: "Books",
-                type: "varchar(255)",
-                nullable: true)
+            migrationBuilder.AlterDatabase()
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.AddColumn<string>(
-                name: "LibraryId",
-                table: "Books",
-                type: "varchar(255)",
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.AddColumn<string>(
-                name: "PersonId",
-                table: "Books",
-                type: "varchar(255)",
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.AddColumn<string>(
-                name: "PersonId1",
-                table: "Books",
-                type: "varchar(255)",
-                nullable: true)
+            migrationBuilder.CreateTable(
+                name: "Books",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Title = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    AuthorId = table.Column<string>(type: "varchar(255)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LibraryId = table.Column<string>(type: "varchar(255)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MemberId = table.Column<string>(type: "varchar(255)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MemberId1 = table.Column<string>(type: "varchar(255)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Books", x => x.Id);
+                })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -51,11 +45,11 @@ namespace library_management.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     BookId = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    PersonId = table.Column<string>(type: "varchar(255)", nullable: true)
+                    MemberId = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    LibraryId = table.Column<string>(type: "varchar(255)", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    LibraryId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -74,6 +68,8 @@ namespace library_management.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FullName = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LibrarianId = table.Column<string>(type: "varchar(255)", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
@@ -94,7 +90,7 @@ namespace library_management.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LastName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    NationalCode = table.Column<string>(type: "longtext", nullable: false)
+                    NationalCode = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PhoneNumber = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -103,7 +99,8 @@ namespace library_management.Migrations
                     Discriminator = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LibraryId = table.Column<string>(type: "varchar(255)", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MembershipStart = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -112,7 +109,8 @@ namespace library_management.Migrations
                         name: "FK_People_Libraries_LibraryId",
                         column: x => x.LibraryId,
                         principalTable: "Libraries",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -127,14 +125,14 @@ namespace library_management.Migrations
                 column: "LibraryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Books_PersonId",
+                name: "IX_Books_MemberId",
                 table: "Books",
-                column: "PersonId");
+                column: "MemberId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Books_PersonId1",
+                name: "IX_Books_MemberId1",
                 table: "Books",
-                column: "PersonId1");
+                column: "MemberId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BorrowedBooks_BookId",
@@ -147,9 +145,9 @@ namespace library_management.Migrations
                 column: "LibraryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BorrowedBooks_PersonId",
+                name: "IX_BorrowedBooks_MemberId",
                 table: "BorrowedBooks",
-                column: "PersonId");
+                column: "MemberId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Libraries_LibrarianId",
@@ -160,6 +158,12 @@ namespace library_management.Migrations
                 name: "IX_People_LibraryId",
                 table: "People",
                 column: "LibraryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_People_NationalCode_LibraryId",
+                table: "People",
+                columns: new[] { "NationalCode", "LibraryId" },
+                unique: true);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Books_Libraries_LibraryId",
@@ -176,16 +180,16 @@ namespace library_management.Migrations
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Books_People_PersonId",
+                name: "FK_Books_People_MemberId",
                 table: "Books",
-                column: "PersonId",
+                column: "MemberId",
                 principalTable: "People",
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Books_People_PersonId1",
+                name: "FK_Books_People_MemberId1",
                 table: "Books",
-                column: "PersonId1",
+                column: "MemberId1",
                 principalTable: "People",
                 principalColumn: "Id");
 
@@ -194,14 +198,16 @@ namespace library_management.Migrations
                 table: "BorrowedBooks",
                 column: "LibraryId",
                 principalTable: "Libraries",
-                principalColumn: "Id");
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_BorrowedBooks_People_PersonId",
+                name: "FK_BorrowedBooks_People_MemberId",
                 table: "BorrowedBooks",
-                column: "PersonId",
+                column: "MemberId",
                 principalTable: "People",
-                principalColumn: "Id");
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Libraries_People_LibrarianId",
@@ -215,22 +221,6 @@ namespace library_management.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Books_Libraries_LibraryId",
-                table: "Books");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Books_People_AuthorId",
-                table: "Books");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Books_People_PersonId",
-                table: "Books");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Books_People_PersonId1",
-                table: "Books");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_People_Libraries_LibraryId",
                 table: "People");
 
@@ -238,49 +228,13 @@ namespace library_management.Migrations
                 name: "BorrowedBooks");
 
             migrationBuilder.DropTable(
+                name: "Books");
+
+            migrationBuilder.DropTable(
                 name: "Libraries");
 
             migrationBuilder.DropTable(
                 name: "People");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Books_AuthorId",
-                table: "Books");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Books_LibraryId",
-                table: "Books");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Books_PersonId",
-                table: "Books");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Books_PersonId1",
-                table: "Books");
-
-            migrationBuilder.DropColumn(
-                name: "AuthorId",
-                table: "Books");
-
-            migrationBuilder.DropColumn(
-                name: "LibraryId",
-                table: "Books");
-
-            migrationBuilder.DropColumn(
-                name: "PersonId",
-                table: "Books");
-
-            migrationBuilder.DropColumn(
-                name: "PersonId1",
-                table: "Books");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Author",
-                table: "Books",
-                type: "longtext",
-                nullable: false)
-                .Annotation("MySql:CharSet", "utf8mb4");
         }
     }
 }

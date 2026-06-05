@@ -38,5 +38,24 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<List<LibraryDto>> { Result = await _libraryService.GetAllLibrariesAsync() };
     }
 
+    [HttpPost("{id}/add-member")]
+    public async Task<ApiGeneralResponse<bool>> AddMember([FromRoute] string id, [FromBody] MemberDto member)
+    {
+        return new ApiGeneralResponse<bool> { Result = await _libraryService.AddMember(id, member) };
+    }
+
+    [HttpGet("{id}/members")]
+    public async Task<ApiGeneralResponse<List<MemberDto>>> GetMembers([FromRoute] string id)
+    {
+        return new ApiGeneralResponse<List<MemberDto>> { Result = await _libraryService.GetMembers(id) };
+    }
+
+    [HttpPost("{id}/lend-book")]
+    public async Task<ApiGeneralResponse<bool>> LendBook([FromRoute] string id, [FromBody] LendBookDto lendBookData)
+    {
+        return new ApiGeneralResponse<bool> { Result = await _libraryService.LendBook(id, lendBookData.bookId, lendBookData.memberId) };
+    }
+
+
 
 }

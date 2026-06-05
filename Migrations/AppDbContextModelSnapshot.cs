@@ -35,9 +35,11 @@ namespace library_management.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("LibraryId")
+                        .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("PersonId")
+                    b.Property<string>("MemberId")
+                        .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
@@ -46,7 +48,7 @@ namespace library_management.Migrations
 
                     b.HasIndex("LibraryId");
 
-                    b.HasIndex("PersonId");
+                    b.HasIndex("MemberId");
 
                     b.ToTable("BorrowedBooks");
                 });
@@ -89,20 +91,15 @@ namespace library_management.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("LibraryId")
-                        .HasColumnType("varchar(255)");
-
                     b.Property<string>("NationalCode")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("LibraryId");
 
                     b.ToTable("People");
 
@@ -122,10 +119,10 @@ namespace library_management.Migrations
                     b.Property<string>("LibraryId")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("PersonId")
+                    b.Property<string>("MemberId")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("PersonId1")
+                    b.Property<string>("MemberId1")
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("Title")
@@ -138,9 +135,9 @@ namespace library_management.Migrations
 
                     b.HasIndex("LibraryId");
 
-                    b.HasIndex("PersonId");
+                    b.HasIndex("MemberId");
 
-                    b.HasIndex("PersonId1");
+                    b.HasIndex("MemberId1");
 
                     b.ToTable("Books");
                 });
@@ -152,6 +149,25 @@ namespace library_management.Migrations
                     b.HasDiscriminator().HasValue("Author");
                 });
 
+            modelBuilder.Entity("Member", b =>
+                {
+                    b.HasBaseType("Person");
+
+                    b.Property<string>("LibraryId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("MembershipStart")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasIndex("LibraryId");
+
+                    b.HasIndex("NationalCode", "LibraryId")
+                        .IsUnique();
+
+                    b.HasDiscriminator().HasValue("Member");
+                });
+
             modelBuilder.Entity("BorrowedBook", b =>
                 {
                     b.HasOne("library_management.Entities.Book", "Book")
@@ -160,17 +176,23 @@ namespace library_management.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Library", null)
-                        .WithMany("BorrowedBooks")
-                        .HasForeignKey("LibraryId");
+                    b.HasOne("Library", "Library")
+                        .WithMany("LentBooks")
+                        .HasForeignKey("LibraryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("Person", "Person")
+                    b.HasOne("Member", "Member")
                         .WithMany()
-                        .HasForeignKey("PersonId");
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Book");
 
-                    b.Navigation("Person");
+                    b.Navigation("Library");
+
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("Library", b =>
@@ -180,13 +202,6 @@ namespace library_management.Migrations
                         .HasForeignKey("LibrarianId");
 
                     b.Navigation("Librarian");
-                });
-
-            modelBuilder.Entity("Person", b =>
-                {
-                    b.HasOne("Library", null)
-                        .WithMany("Members")
-                        .HasForeignKey("LibraryId");
                 });
 
             modelBuilder.Entity("library_management.Entities.Book", b =>
@@ -199,15 +214,26 @@ namespace library_management.Migrations
                         .WithMany("Books")
                         .HasForeignKey("LibraryId");
 
-                    b.HasOne("Person", null)
+                    b.HasOne("Member", null)
                         .WithMany("BorrowedBooks")
-                        .HasForeignKey("PersonId");
+                        .HasForeignKey("MemberId");
 
-                    b.HasOne("Person", null)
+                    b.HasOne("Member", null)
                         .WithMany("FavoriteBooks")
-                        .HasForeignKey("PersonId1");
+                        .HasForeignKey("MemberId1");
 
                     b.Navigation("Author");
+
+                    b.Navigation("Library");
+                });
+
+            modelBuilder.Entity("Member", b =>
+                {
+                    b.HasOne("Library", "Library")
+                        .WithMany("Members")
+                        .HasForeignKey("LibraryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Library");
                 });
@@ -216,21 +242,21 @@ namespace library_management.Migrations
                 {
                     b.Navigation("Books");
 
-                    b.Navigation("BorrowedBooks");
+                    b.Navigation("LentBooks");
 
                     b.Navigation("Members");
-                });
-
-            modelBuilder.Entity("Person", b =>
-                {
-                    b.Navigation("BorrowedBooks");
-
-                    b.Navigation("FavoriteBooks");
                 });
 
             modelBuilder.Entity("Author", b =>
                 {
                     b.Navigation("WrittenBooks");
+                });
+
+            modelBuilder.Entity("Member", b =>
+                {
+                    b.Navigation("BorrowedBooks");
+
+                    b.Navigation("FavoriteBooks");
                 });
 #pragma warning restore 612, 618
         }

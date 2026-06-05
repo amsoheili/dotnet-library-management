@@ -1,5 +1,6 @@
 using library_management.Data;
 using library_management.DTOs;
+using library_management.Entities;
 using Microsoft.EntityFrameworkCore;
 
 public interface ILibraryService
@@ -11,6 +12,12 @@ public interface ILibraryService
     public Task<string> CreateLibraryAsync(string fullname);
 
     public Task<List<LibraryDto>> GetAllLibrariesAsync();
+
+    public Task<bool> LendBook(string libraryId, string bookId, string memberId);
+
+    public Task<bool> AddMember(string libraryId, MemberDto member);
+
+    public Task<List<MemberDto>> GetMembers(string libraryId);
 }
 
 public class LibraryService : ILibraryService
@@ -61,4 +68,68 @@ public class LibraryService : ILibraryService
     {
         return await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync();
     }
+
+    public async Task<bool> LendBook(string libraryId, string bookId, string memberId)
+    {
+        var member = await _context.Members.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId);
+
+        if (member is null)
+            return false;
+
+        var book = await _context.Books
+            .Where(b => b.LibraryId == libraryId)
+            .FirstOrDefaultAsync(b => b.Id == bookId);
+
+        if (book is null)
+            return false;
+
+        var hasLentBefore = await _context.BorrowedBooks.AnyAsync(bB => bB.BookId == bookId);
+
+        if (hasLentBefore)
+            return false;
+
+        await _context.BorrowedBooks.AddAsync(new BorrowedBook
+        {
+            BookId = bookId,
+            MemberId = memberId,
+            LibraryId = libraryId,
+            Date = new DateTime()
+        });
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> AddMember(string libraryId, MemberDto member)
+    {
+        var libraryExists = await _context.Libraries.AnyAsync(l => l.Id == libraryId);
+
+        if (!libraryExists)
+            return false;
+
+        var memberExists = await _context.Members.AnyAsync(m => m.NationalCode == member.NationalCode && m.LibraryId == libraryId);
+
+        if (memberExists)
+            return false;
+
+        var newMember = new Member
+        {
+            FirstName = member.FirstName,
+            LastName = member.LastName,
+            NationalCode = member.NationalCode,
+            PhoneNumber = member.PhoneNumber,
+            LibraryId = libraryId
+        };
+        await _context.Members.AddAsync(newMember);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<List<MemberDto>> GetMembers(string libraryId)
+    {
+        return await _context.Members
+        .Where(m => m.LibraryId == libraryId)
+        .Select(m => new MemberDto(m.Id, m.FirstName, m.LastName, m.NationalCode, m.PhoneNumber))
+        .ToListAsync();
+    }
+
 }

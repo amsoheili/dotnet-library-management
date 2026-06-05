@@ -1,3 +1,4 @@
-// public record AuthorDto(
-
-// )
+public record AuthorDto(
+    string Id,
+    string? FullName
+);
