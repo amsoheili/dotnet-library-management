@@ -56,6 +56,10 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<bool> { Result = await _libraryService.LendBook(id, lendBookData.bookId, lendBookData.memberId) };
     }
 
-
+    [HttpDelete("{id}/retake-book")]
+    public async Task<ApiGeneralResponse<bool>> RetakeBook([FromRoute] string id, [FromBody] RetakeBookDto retakeBookData)
+    {
+        return new ApiGeneralResponse<bool> { Result = await _libraryService.RetakeBook(id, retakeBookData.bookId, retakeBookData.memberId) };
+    }
 
 }

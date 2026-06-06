@@ -18,6 +18,8 @@ public interface ILibraryService
     public Task<bool> AddMember(string libraryId, MemberDto member);
 
     public Task<List<MemberDto>> GetMembers(string libraryId);
+
+    public Task<bool> RetakeBook(string libraryId, string bookId, string memberId);
 }
 
 public class LibraryService : ILibraryService
@@ -93,7 +95,7 @@ public class LibraryService : ILibraryService
             BookId = bookId,
             MemberId = memberId,
             LibraryId = libraryId,
-            Date = new DateTime()
+            Date = DateTime.UtcNow
         });
         await _context.SaveChangesAsync();
         return true;
@@ -131,5 +133,25 @@ public class LibraryService : ILibraryService
         .Select(m => new MemberDto(m.Id, m.FirstName, m.LastName, m.NationalCode, m.PhoneNumber))
         .ToListAsync();
     }
+
+    public async Task<bool> RetakeBook(string libraryId, string bookId, string memberId)
+    {
+        var member = await _context.Members.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId);
+
+        if (member is null)
+            return false;
+
+        var borrowedBook = await _context.BorrowedBooks.FirstOrDefaultAsync(bB => bB.BookId == bookId && bB.LibraryId == libraryId);
+
+        if (borrowedBook is null)
+            return false;
+
+        _context.Remove(borrowedBook);
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
 
 }
