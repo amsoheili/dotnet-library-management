@@ -20,5 +20,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Member>()
             .HasIndex(m => new { m.NationalCode, m.LibraryId })
             .IsUnique();
+
+        modelBuilder.Entity<Member>()
+            .HasMany(m => m.FavoriteBooks)
+            .WithMany()
+            .UsingEntity(j => j.ToTable("FavoriteBooks"));
     }
 }

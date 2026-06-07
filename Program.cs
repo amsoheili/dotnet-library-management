@@ -13,9 +13,13 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
+// services
 builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
+
+// jobs
+builder.Services.AddHostedService<BookDeptReminder>();
 
 builder.Services.AddEndpointsApiExplorer();
 
