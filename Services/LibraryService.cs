@@ -2,6 +2,7 @@ using library_management.Data;
 using library_management.DTOs;
 using library_management.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 public interface ILibraryService
 {
@@ -25,10 +26,18 @@ public interface ILibraryService
 public class LibraryService : ILibraryService
 {
     private readonly AppDbContext _context;
+    private readonly IMemoryCache _cache;
+    private readonly ILogger<LibraryService> _logger;
 
-    public LibraryService(AppDbContext context)
+    public LibraryService(
+        AppDbContext context,
+        IMemoryCache memoryCache,
+        ILogger<LibraryService> logger
+         )
     {
         _context = context;
+        _cache = memoryCache;
+        _logger = logger;
     }
 
     public async Task<bool> AddBookToLibraryAsync(string libraryId, string bookId)
@@ -68,7 +77,18 @@ public class LibraryService : ILibraryService
 
     public async Task<List<LibraryDto>> GetAllLibrariesAsync()
     {
-        return await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync();
+        _logger.LogInformation("calling get all libraries");
+        if (!_cache.TryGetValue(AppInMemoryCacheKeys.LibrariesList, out List<LibraryDto> libraryList))
+        {
+            libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync();
+
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(1))
+                .SetSlidingExpiration(TimeSpan.FromSeconds(30));
+
+            _cache.Set(AppInMemoryCacheKeys.LibrariesList, libraryList, cacheOptions);
+        }
+        return libraryList;
     }
 
     public async Task<bool> LendBook(string libraryId, string bookId, string memberId)

@@ -10,14 +10,13 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddControllers();
-
 builder.Services.AddOpenApi();
+builder.Services.AddMemoryCache();
 
 // services
 builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
-
 // jobs
 builder.Services.AddHostedService<BookDeptReminder>();
 
