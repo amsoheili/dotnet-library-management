@@ -61,10 +61,16 @@ public class LibraryService : ILibraryService
 
     public async Task<List<BookDTO>> GetLibraryBooksAsync(string id)
     {
-        return await _context.Books
+        if (!_cache.TryGetValue(AppInMemoryCacheKeys.BooksList, out List<BookDTO> booksList))
+        {
+            booksList = await _context.Books
                 .Where(b => b.LibraryId == id)
                 .Select(b => new BookDTO(b.Id, b.Title, b.AuthorId))
                 .ToListAsync();
+
+            _cache.Set(AppInMemoryCacheKeys.BooksList, booksList, AppCacheOptions.InMemoryCacheOptions);
+        }
+        return booksList;
     }
 
     public async Task<string> CreateLibraryAsync(string fullname)
@@ -77,16 +83,11 @@ public class LibraryService : ILibraryService
 
     public async Task<List<LibraryDto>> GetAllLibrariesAsync()
     {
-        _logger.LogInformation("calling get all libraries");
         if (!_cache.TryGetValue(AppInMemoryCacheKeys.LibrariesList, out List<LibraryDto> libraryList))
         {
             libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync();
 
-            var cacheOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromMinutes(1))
-                .SetSlidingExpiration(TimeSpan.FromSeconds(30));
-
-            _cache.Set(AppInMemoryCacheKeys.LibrariesList, libraryList, cacheOptions);
+            _cache.Set(AppInMemoryCacheKeys.LibrariesList, libraryList, AppCacheOptions.InMemoryCacheOptions);
         }
         return libraryList;
     }
