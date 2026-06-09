@@ -9,9 +9,16 @@ public class AuthorController
     {
         _authorService = authorService;
     }
+
     [HttpPost]
     public async Task<ApiGeneralResponse<AuthorDto>> CreateAuthor([FromBody] CreateAuthorDto author)
     {
         return new ApiGeneralResponse<AuthorDto> { Result = await _authorService.CreateAuthorAsync(author) };
+    }
+
+    [HttpGet]
+    public async Task<ApiGeneralResponse<List<AuthorDto>>> GetAuthors()
+    {
+        return new ApiGeneralResponse<List<AuthorDto>> { Result = await _authorService.GetAuthorsAsync() };
     }
 }

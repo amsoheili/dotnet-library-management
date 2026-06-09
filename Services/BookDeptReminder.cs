@@ -23,7 +23,7 @@ public class BookDeptReminder : BackgroundService
         {
             _logger.LogInformation("checking the borrowed list");
             await ProcessAsync(cancellationToken);
-            await Task.Delay(5 * 1000, cancellationToken);
+            await Task.Delay(20 * 1000, cancellationToken);
         }
     }
 

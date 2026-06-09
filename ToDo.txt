@@ -1,7 +1,11 @@
-Dept reminder background service
+Dept reminder background service - Done
 
 Add Cancellation Token to apis
 
-Add Caching system
+Add In memory Caching system - Done
+
+Add Redis Caching system - Done
 
 Error handling
+
+enhance api general responses
