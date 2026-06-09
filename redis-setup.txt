@@ -1,0 +1,8 @@
+runs through docker
+
+image name: redis
+
+container name: dotnet-cache-redis
+
+entering it's cli: docker exec -it dotnet-cache-redis redis-cli
+

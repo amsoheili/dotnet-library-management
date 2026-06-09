@@ -132,3 +132,6 @@
 /home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Serilog.Sinks.Console.dll
 /home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Serilog.Sinks.Debug.dll
 /home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Serilog.Sinks.File.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.Extensions.Caching.StackExchangeRedis.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Pipelines.Sockets.Unofficial.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/StackExchange.Redis.dll

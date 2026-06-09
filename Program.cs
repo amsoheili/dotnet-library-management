@@ -17,8 +17,16 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
+builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
+
 // jobs
 builder.Services.AddHostedService<BookDeptReminder>();
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "localhost:6380";
+    options.InstanceName = "library-management:";
+});
 
 builder.Services.AddEndpointsApiExplorer();
 

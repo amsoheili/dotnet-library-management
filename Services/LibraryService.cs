@@ -1,6 +1,7 @@
 using library_management.Data;
 using library_management.DTOs;
 using library_management.Entities;
+using library_management.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -27,17 +28,20 @@ public class LibraryService : ILibraryService
 {
     private readonly AppDbContext _context;
     private readonly IMemoryCache _cache;
+    private readonly IRedisCacheService _redisCache;
     private readonly ILogger<LibraryService> _logger;
 
     public LibraryService(
         AppDbContext context,
         IMemoryCache memoryCache,
-        ILogger<LibraryService> logger
+        ILogger<LibraryService> logger,
+        IRedisCacheService redisCache
          )
     {
         _context = context;
         _cache = memoryCache;
         _logger = logger;
+        _redisCache = redisCache;
     }
 
     public async Task<bool> AddBookToLibraryAsync(string libraryId, string bookId)
@@ -61,15 +65,31 @@ public class LibraryService : ILibraryService
 
     public async Task<List<BookDTO>> GetLibraryBooksAsync(string id)
     {
-        if (!_cache.TryGetValue(AppInMemoryCacheKeys.BooksList, out List<BookDTO> booksList))
+        var booksList = await _redisCache.GetEntry<List<BookDTO>>(AppInMemoryCacheKeys.BooksList);
+
+        if (booksList is null)
         {
             booksList = await _context.Books
                 .Where(b => b.LibraryId == id)
                 .Select(b => new BookDTO(b.Id, b.Title, b.AuthorId))
                 .ToListAsync();
 
-            _cache.Set(AppInMemoryCacheKeys.BooksList, booksList, AppCacheOptions.InMemoryCacheOptions);
+            await _redisCache.SetEntry(AppInMemoryCacheKeys.BooksList, booksList);
         }
+        else
+        {
+            _logger.LogInformation("reading from cache");
+        }
+
+        // if (!_cache.TryGetValue(AppInMemoryCacheKeys.BooksList, out List<BookDTO> booksList))
+        // {
+        //     booksList = await _context.Books
+        //         .Where(b => b.LibraryId == id)
+        //         .Select(b => new BookDTO(b.Id, b.Title, b.AuthorId))
+        //         .ToListAsync();
+
+        //     _cache.Set(AppInMemoryCacheKeys.BooksList, booksList, AppCacheOptions.InMemoryCacheOptions);
+        // }
         return booksList;
     }
 
@@ -83,12 +103,21 @@ public class LibraryService : ILibraryService
 
     public async Task<List<LibraryDto>> GetAllLibrariesAsync()
     {
-        if (!_cache.TryGetValue(AppInMemoryCacheKeys.LibrariesList, out List<LibraryDto> libraryList))
+        var libraryList = await _redisCache.GetEntry<List<LibraryDto>>(AppInMemoryCacheKeys.LibrariesList);
+
+        if (libraryList is null)
         {
             libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync();
 
-            _cache.Set(AppInMemoryCacheKeys.LibrariesList, libraryList, AppCacheOptions.InMemoryCacheOptions);
+            await _redisCache.SetEntry(AppInMemoryCacheKeys.LibrariesList, libraryList);
+
         }
+        // if (!_cache.TryGetValue(AppInMemoryCacheKeys.LibrariesList, out List<LibraryDto> libraryList))
+        // {
+        //     libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync();
+
+        //     _cache.Set(AppInMemoryCacheKeys.LibrariesList, libraryList, AppCacheOptions.InMemoryCacheOptions);
+        // }
         return libraryList;
     }
 
