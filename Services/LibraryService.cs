@@ -27,21 +27,19 @@ public interface ILibraryService
 public class LibraryService : ILibraryService
 {
     private readonly AppDbContext _context;
-    private readonly IMemoryCache _cache;
-    private readonly IRedisCacheService _redisCache;
+    private readonly IHybridCacheService _hybridCache;
     private readonly ILogger<LibraryService> _logger;
-
     public LibraryService(
         AppDbContext context,
         IMemoryCache memoryCache,
         ILogger<LibraryService> logger,
-        IRedisCacheService redisCache
+        IRedisCacheService redisCache,
+        IHybridCacheService hybridCache
          )
     {
         _context = context;
-        _cache = memoryCache;
         _logger = logger;
-        _redisCache = redisCache;
+        _hybridCache = hybridCache;
     }
 
     public async Task<bool> AddBookToLibraryAsync(string libraryId, string bookId)
@@ -65,32 +63,10 @@ public class LibraryService : ILibraryService
 
     public async Task<List<BookDTO>> GetLibraryBooksAsync(string id)
     {
-        var booksList = await _redisCache.GetEntry<List<BookDTO>>(AppInMemoryCacheKeys.BooksList);
-
-        if (booksList is null)
-        {
-            booksList = await _context.Books
-                .Where(b => b.LibraryId == id)
-                .Select(b => new BookDTO(b.Id, b.Title, b.AuthorId))
-                .ToListAsync();
-
-            await _redisCache.SetEntry(AppInMemoryCacheKeys.BooksList, booksList);
-        }
-        else
-        {
-            _logger.LogInformation("reading from cache");
-        }
-
-        // if (!_cache.TryGetValue(AppInMemoryCacheKeys.BooksList, out List<BookDTO> booksList))
-        // {
-        //     booksList = await _context.Books
-        //         .Where(b => b.LibraryId == id)
-        //         .Select(b => new BookDTO(b.Id, b.Title, b.AuthorId))
-        //         .ToListAsync();
-
-        //     _cache.Set(AppInMemoryCacheKeys.BooksList, booksList, AppCacheOptions.InMemoryCacheOptions);
-        // }
-        return booksList;
+        return await _context.Books
+            .Where(b => b.LibraryId == id)
+            .Select(b => new BookDTO(b.Id, b.Title, b.AuthorId))
+            .ToListAsync();
     }
 
     public async Task<string> CreateLibraryAsync(string fullname)
@@ -103,21 +79,15 @@ public class LibraryService : ILibraryService
 
     public async Task<List<LibraryDto>> GetAllLibrariesAsync()
     {
-        var libraryList = await _redisCache.GetEntry<List<LibraryDto>>(AppInMemoryCacheKeys.LibrariesList);
+        var libraryList = await _hybridCache.GetEntry<List<LibraryDto>>(AppInMemoryCacheKeys.LibrariesList);
 
         if (libraryList is null)
         {
             libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync();
 
-            await _redisCache.SetEntry(AppInMemoryCacheKeys.LibrariesList, libraryList);
+            await _hybridCache.SetEntry(AppInMemoryCacheKeys.LibrariesList, libraryList);
 
         }
-        // if (!_cache.TryGetValue(AppInMemoryCacheKeys.LibrariesList, out List<LibraryDto> libraryList))
-        // {
-        //     libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync();
-
-        //     _cache.Set(AppInMemoryCacheKeys.LibrariesList, libraryList, AppCacheOptions.InMemoryCacheOptions);
-        // }
         return libraryList;
     }
 
