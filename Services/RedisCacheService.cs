@@ -27,7 +27,7 @@ public class RedisCacheService : IRedisCacheService
 
         var options = new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(4)
         };
 
         await _cache.SetStringAsync(key, json, options);

@@ -13,9 +13,9 @@ public class LibraryController : ControllerBase
     }
 
     [HttpPost("{libraryId}/add-book/{bookId}")]
-    public async Task<ApiGeneralResponse<Boolean>> AddBook([FromRoute] string libraryId, [FromRoute] string bookId)
+    public async Task<ApiGeneralResponse<Boolean>> AddBook([FromRoute] string libraryId, [FromRoute] string bookId, CancellationToken ct)
     {
-        var result = await _libraryService.AddBookToLibraryAsync(libraryId, bookId);
+        var result = await _libraryService.AddBookToLibraryAsync(libraryId, bookId, ct);
         return new ApiGeneralResponse<bool> { Success = result };
     }
 

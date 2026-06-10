@@ -18,6 +18,7 @@ builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
+builder.Services.AddSingleton<IHybridCacheService, HybridCacheService>();
 
 // jobs
 builder.Services.AddHostedService<BookDeptReminder>();
