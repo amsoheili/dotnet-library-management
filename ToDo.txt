@@ -9,3 +9,9 @@ Add Redis Caching system - Done
 Error handling
 
 enhance api general responses
+
+Do heavy actions: D
+    -Insert 1 million books into a library
+    -Loop through all of them and check how many of their titles contain a certain word
+    -Use cancellation token to stop the calculation if needed
+    -

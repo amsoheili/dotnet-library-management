@@ -89,4 +89,10 @@ public class BooksController : ControllerBase
         await _booksDataService.DeleteBook(id, ct);
         return result;
     }
+
+    [HttpPost("count-books")]
+    public async Task<ApiGeneralResponse<int>> CountBooks([FromQuery] string regex, CancellationToken ct)
+    {
+        return new ApiGeneralResponse<int> { Result = await _booksDataService.CountBooks(regex, ct) };
+    }
 }

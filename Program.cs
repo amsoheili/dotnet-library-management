@@ -21,7 +21,7 @@ builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 builder.Services.AddSingleton<IHybridCacheService, HybridCacheService>();
 
 // jobs
-builder.Services.AddHostedService<BookDeptReminder>();
+// builder.Services.AddHostedService<BookDeptReminder>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {

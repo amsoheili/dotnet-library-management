@@ -12,15 +12,21 @@ public interface IBooksDataService
     public Task AddBook(Book book, CancellationToken ct);
     public Task DeleteBook(string id, CancellationToken ct);
     public Task<Book> UpdateBook(string id, Book book, CancellationToken ct);
+    public Task<int> CountBooks(string regex, CancellationToken ct);
 }
 
 public class BooksDataService : IBooksDataService
 {
     private readonly AppDbContext _context;
+    private readonly ILogger<BooksDataService> _logger;
 
-    public BooksDataService(AppDbContext context)
+    public BooksDataService(
+        AppDbContext context,
+        ILogger<BooksDataService> logger
+        )
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task AddBook(Book book, CancellationToken ct)
@@ -55,6 +61,30 @@ public class BooksDataService : IBooksDataService
         retrievedBook.Author = book.Author;
         await _context.SaveChangesAsync(ct);
         return book;
+    }
+    public async Task<int> CountBooks(string regex, CancellationToken ct)
+    {
+        int count = 0;
+        try
+        {
+            _logger.LogInformation("About to bring the books in memory");
+            var books = await _context.Books.ToListAsync(ct);
+            _logger.LogInformation("All books brought into memory");
+
+            foreach (Book book in books)
+            {
+                ct.ThrowIfCancellationRequested();
+                if (book.Title.Contains(regex))
+                    count++;
+            }
+        }
+        catch (OperationCanceledException operationCanceledException)
+        {
+            _logger.LogWarning("Catching the operation cancelled exception");
+            _logger.LogWarning(operationCanceledException.Message);
+        }
+
+        return count;
     }
 
 }
