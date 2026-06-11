@@ -7,21 +7,21 @@ using Microsoft.Extensions.Caching.Memory;
 
 public interface ILibraryService
 {
-    public Task<bool> AddBookToLibraryAsync(string libraryId, string bookId);
+    public Task<bool> AddBookToLibraryAsync(string libraryId, string bookId, CancellationToken ct);
 
-    public Task<List<BookDTO>> GetLibraryBooksAsync(string id);
+    public Task<List<BookDTO>> GetLibraryBooksAsync(string id, CancellationToken ct);
 
-    public Task<string> CreateLibraryAsync(string fullname);
+    public Task<string> CreateLibraryAsync(string fullname, CancellationToken ct);
 
-    public Task<List<LibraryDto>> GetAllLibrariesAsync();
+    public Task<List<LibraryDto>> GetAllLibrariesAsync(CancellationToken ct);
 
-    public Task<bool> LendBook(string libraryId, string bookId, string memberId);
+    public Task<bool> LendBook(string libraryId, string bookId, string memberId, CancellationToken ct);
 
-    public Task<bool> AddMember(string libraryId, MemberDto member);
+    public Task<bool> AddMember(string libraryId, MemberDto member, CancellationToken ct);
 
-    public Task<List<MemberDto>> GetMembers(string libraryId);
+    public Task<List<MemberDto>> GetMembers(string libraryId, CancellationToken ct);
 
-    public Task<bool> RetakeBook(string libraryId, string bookId, string memberId);
+    public Task<bool> RetakeBook(string libraryId, string bookId, string memberId, CancellationToken ct);
 }
 
 public class LibraryService : ILibraryService
@@ -31,9 +31,7 @@ public class LibraryService : ILibraryService
     private readonly ILogger<LibraryService> _logger;
     public LibraryService(
         AppDbContext context,
-        IMemoryCache memoryCache,
         ILogger<LibraryService> logger,
-        IRedisCacheService redisCache,
         IHybridCacheService hybridCache
          )
     {
@@ -42,48 +40,49 @@ public class LibraryService : ILibraryService
         _hybridCache = hybridCache;
     }
 
-    public async Task<bool> AddBookToLibraryAsync(string libraryId, string bookId)
+    public async Task<bool> AddBookToLibraryAsync(string libraryId, string bookId, CancellationToken ct)
     {
-        var libraryExists = await _context.Libraries.AnyAsync(l => l.Id == libraryId);
+        var libraryExists = await _context.Libraries.AsNoTracking().AnyAsync(l => l.Id == libraryId, ct);
 
         if (!libraryExists)
             return false;
 
-        var book = await _context.Books.SingleOrDefaultAsync(b => b.Id == bookId);
+        var book = await _context.Books.SingleOrDefaultAsync(b => b.Id == bookId, ct);
 
         if (book is null)
             return false;
 
         book.LibraryId = libraryId;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
 
         return true;
     }
 
-    public async Task<List<BookDTO>> GetLibraryBooksAsync(string id)
+    public async Task<List<BookDTO>> GetLibraryBooksAsync(string id, CancellationToken ct)
     {
         return await _context.Books
+            .AsNoTracking()
             .Where(b => b.LibraryId == id)
             .Select(b => new BookDTO(b.Id, b.Title, b.AuthorId))
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
-    public async Task<string> CreateLibraryAsync(string fullname)
+    public async Task<string> CreateLibraryAsync(string fullname, CancellationToken ct)
     {
         var library = new Library { FullName = fullname };
-        await _context.Libraries.AddAsync(library);
-        await _context.SaveChangesAsync();
+        await _context.Libraries.AddAsync(library, ct);
+        await _context.SaveChangesAsync(ct);
         return library.Id;
     }
 
-    public async Task<List<LibraryDto>> GetAllLibrariesAsync()
+    public async Task<List<LibraryDto>> GetAllLibrariesAsync(CancellationToken ct)
     {
         var libraryList = await _hybridCache.GetEntry<List<LibraryDto>>(AppInMemoryCacheKeys.LibrariesList);
 
         if (libraryList is null)
         {
-            libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync();
+            libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync(ct);
 
             await _hybridCache.SetEntry(AppInMemoryCacheKeys.LibrariesList, libraryList);
 
@@ -91,21 +90,21 @@ public class LibraryService : ILibraryService
         return libraryList;
     }
 
-    public async Task<bool> LendBook(string libraryId, string bookId, string memberId)
+    public async Task<bool> LendBook(string libraryId, string bookId, string memberId, CancellationToken ct)
     {
-        var member = await _context.Members.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId);
+        var member = await _context.Members.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId, ct);
 
         if (member is null)
             return false;
 
         var book = await _context.Books
             .Where(b => b.LibraryId == libraryId)
-            .FirstOrDefaultAsync(b => b.Id == bookId);
+            .FirstOrDefaultAsync(b => b.Id == bookId, ct);
 
         if (book is null)
             return false;
 
-        var hasLentBefore = await _context.BorrowedBooks.AnyAsync(bB => bB.BookId == bookId);
+        var hasLentBefore = await _context.BorrowedBooks.AnyAsync(bB => bB.BookId == bookId, ct);
 
         if (hasLentBefore)
             return false;
@@ -116,19 +115,19 @@ public class LibraryService : ILibraryService
             MemberId = memberId,
             LibraryId = libraryId,
             Date = DateTime.UtcNow
-        });
-        await _context.SaveChangesAsync();
+        }, ct);
+        await _context.SaveChangesAsync(ct);
         return true;
     }
 
-    public async Task<bool> AddMember(string libraryId, MemberDto member)
+    public async Task<bool> AddMember(string libraryId, MemberDto member, CancellationToken ct)
     {
-        var libraryExists = await _context.Libraries.AnyAsync(l => l.Id == libraryId);
+        var libraryExists = await _context.Libraries.AnyAsync(l => l.Id == libraryId, ct);
 
         if (!libraryExists)
             return false;
 
-        var memberExists = await _context.Members.AnyAsync(m => m.NationalCode == member.NationalCode && m.LibraryId == libraryId);
+        var memberExists = await _context.Members.AnyAsync(m => m.NationalCode == member.NationalCode && m.LibraryId == libraryId, ct);
 
         if (memberExists)
             return false;
@@ -141,34 +140,34 @@ public class LibraryService : ILibraryService
             PhoneNumber = member.PhoneNumber,
             LibraryId = libraryId
         };
-        await _context.Members.AddAsync(newMember);
-        await _context.SaveChangesAsync();
+        await _context.Members.AddAsync(newMember, ct);
+        await _context.SaveChangesAsync(ct);
         return true;
     }
 
-    public async Task<List<MemberDto>> GetMembers(string libraryId)
+    public async Task<List<MemberDto>> GetMembers(string libraryId, CancellationToken ct)
     {
         return await _context.Members
         .Where(m => m.LibraryId == libraryId)
         .Select(m => new MemberDto(m.Id, m.FirstName, m.LastName, m.NationalCode, m.PhoneNumber))
-        .ToListAsync();
+        .ToListAsync(ct);
     }
 
-    public async Task<bool> RetakeBook(string libraryId, string bookId, string memberId)
+    public async Task<bool> RetakeBook(string libraryId, string bookId, string memberId, CancellationToken ct)
     {
-        var member = await _context.Members.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId);
+        var member = await _context.Members.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId, ct);
 
         if (member is null)
             return false;
 
-        var borrowedBook = await _context.BorrowedBooks.FirstOrDefaultAsync(bB => bB.BookId == bookId && bB.LibraryId == libraryId);
+        var borrowedBook = await _context.BorrowedBooks.FirstOrDefaultAsync(bB => bB.BookId == bookId && bB.LibraryId == libraryId, ct);
 
         if (borrowedBook is null)
             return false;
 
         _context.Remove(borrowedBook);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
 
         return true;
     }

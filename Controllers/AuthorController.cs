@@ -11,14 +11,14 @@ public class AuthorController
     }
 
     [HttpPost]
-    public async Task<ApiGeneralResponse<AuthorDto>> CreateAuthor([FromBody] CreateAuthorDto author)
+    public async Task<ApiGeneralResponse<AuthorDto>> CreateAuthor([FromBody] CreateAuthorDto author, CancellationToken ct)
     {
-        return new ApiGeneralResponse<AuthorDto> { Result = await _authorService.CreateAuthorAsync(author) };
+        return new ApiGeneralResponse<AuthorDto> { Result = await _authorService.CreateAuthorAsync(author, ct) };
     }
 
     [HttpGet]
-    public async Task<ApiGeneralResponse<List<AuthorDto>>> GetAuthors()
+    public async Task<ApiGeneralResponse<List<AuthorDto>>> GetAuthors(CancellationToken ct)
     {
-        return new ApiGeneralResponse<List<AuthorDto>> { Result = await _authorService.GetAuthorsAsync() };
+        return new ApiGeneralResponse<List<AuthorDto>> { Result = await _authorService.GetAuthorsAsync(ct) };
     }
 }
