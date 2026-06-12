@@ -6,7 +6,7 @@ public interface IAuthorService
 {
     public Task<AuthorDto> CreateAuthorAsync(CreateAuthorDto author, CancellationToken ct);
 
-    public Task<List<AuthorDto>> GetAuthorsAsync(CancellationToken ct);
+    public Task<List<AuthorDto>> GetAuthorsAsync(PaginationDto pagination, CancellationToken ct);
 }
 
 public class AuthorService : IAuthorService
@@ -35,9 +35,13 @@ public class AuthorService : IAuthorService
     }
 
     [OutputCache(Duration = 10)]
-    public async Task<List<AuthorDto>> GetAuthorsAsync(CancellationToken ct)
+    public async Task<List<AuthorDto>> GetAuthorsAsync(PaginationDto pagination, CancellationToken ct)
     {
-        return await _context.Authors.Select(a => new AuthorDto(
+        return await _context.Authors
+        .AsNoTracking()
+        .Skip((pagination.page - 1) * pagination.pageSize)
+        .Take(pagination.page)
+        .Select(a => new AuthorDto(
             a.Id,
             $"{a.FirstName} {a.LastName}"
         )).ToListAsync(ct);

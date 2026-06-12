@@ -7,7 +7,7 @@ namespace library_management.Services;
 
 public interface IBooksDataService
 {
-    public Task<List<Book>> GetBooks(CancellationToken ct);
+    public Task<List<Book>> GetBooks(PaginationDto pagination, CancellationToken ct);
     public Task<Book> GetBookById(string id, CancellationToken ct);
     public Task AddBook(Book book, CancellationToken ct);
     public Task DeleteBook(string id, CancellationToken ct);
@@ -40,9 +40,13 @@ public class BooksDataService : IBooksDataService
         return await _context.Books.SingleOrDefaultAsync(b => String.Equals(b.Id, id), ct);
     }
 
-    public async Task<List<Book>> GetBooks(CancellationToken ct)
+    public async Task<List<Book>> GetBooks(PaginationDto pagination, CancellationToken ct)
     {
-        return await _context.Books.AsNoTracking().ToListAsync(ct);
+        return await _context.Books
+                        .AsNoTracking()
+                        .Skip((pagination.page - 1) * pagination.pageSize)
+                        .Take(pagination.pageSize)
+                        .ToListAsync(ct);
     }
 
     public async Task DeleteBook(string id, CancellationToken ct)

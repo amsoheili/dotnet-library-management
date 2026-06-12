@@ -15,8 +15,10 @@ Do heavy actions: D
     -Loop through all of them and check how many of their titles contain a certain word
     -Use cancellation token to stop the calculation if needed
     
-Add constraint for ids on controller actions routes
+Add constraint for ids and pagination properties on controller actions routes
 
 Break Library's Books into another controller (nesting)
 
-Setup Elk (elastic + kibana for logging)
+Setup Elk (elastic + kibana for logging - read about ProblemDetails)
+
+Add pagination for books and libraries

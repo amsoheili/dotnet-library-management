@@ -17,10 +17,10 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<List<BookDTO>> GetBooks(CancellationToken ct)
+    public async Task<List<BookDTO>> GetBooks([FromQuery] PaginationDto? pagination, CancellationToken ct)
     {
         List<BookDTO> list = new List<BookDTO>([]);
-        var retrievedList = await _booksDataService.GetBooks(ct);
+        var retrievedList = await _booksDataService.GetBooks(pagination, ct);
         return retrievedList.Select(b => new BookDTO(
                 b.Id,
                 b.Title,

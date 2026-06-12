@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("author")]
+[Route("authors")]
 public class AuthorController
 {
     private readonly IAuthorService _authorService;
@@ -17,8 +17,8 @@ public class AuthorController
     }
 
     [HttpGet]
-    public async Task<ApiGeneralResponse<List<AuthorDto>>> GetAuthors(CancellationToken ct)
+    public async Task<ApiGeneralResponse<List<AuthorDto>>> GetAuthors([FromQuery] PaginationDto? pagination, CancellationToken ct)
     {
-        return new ApiGeneralResponse<List<AuthorDto>> { Result = await _authorService.GetAuthorsAsync(ct) };
+        return new ApiGeneralResponse<List<AuthorDto>> { Result = await _authorService.GetAuthorsAsync(pagination, ct) };
     }
 }

@@ -9,7 +9,7 @@ public interface ILibraryService
 {
     public Task<bool> AddBookToLibraryAsync(string libraryId, string bookId, CancellationToken ct);
 
-    public Task<List<BookDTO>> GetLibraryBooksAsync(string id, CancellationToken ct);
+    public Task<List<BookDTO>> GetLibraryBooksAsync(string id, PaginationDto pagination, CancellationToken ct);
 
     public Task<string> CreateLibraryAsync(string fullname, CancellationToken ct);
 
@@ -19,7 +19,7 @@ public interface ILibraryService
 
     public Task<bool> AddMember(string libraryId, MemberDto member, CancellationToken ct);
 
-    public Task<List<MemberDto>> GetMembers(string libraryId, CancellationToken ct);
+    public Task<List<MemberDto>> GetMembers(string libraryId, PaginationDto pagination, CancellationToken ct);
 
     public Task<bool> RetakeBook(string libraryId, string bookId, string memberId, CancellationToken ct);
 }
@@ -59,11 +59,13 @@ public class LibraryService : ILibraryService
         return true;
     }
 
-    public async Task<List<BookDTO>> GetLibraryBooksAsync(string id, CancellationToken ct)
+    public async Task<List<BookDTO>> GetLibraryBooksAsync(string id, PaginationDto pagination, CancellationToken ct)
     {
         return await _context.Books
             .AsNoTracking()
             .Where(b => b.LibraryId == id)
+            .Skip((pagination.page - 1) * pagination.pageSize)
+            .Take(pagination.pageSize)
             .Select(b => new BookDTO(b.Id, b.Title, b.AuthorId))
             .ToListAsync(ct);
     }
@@ -145,10 +147,12 @@ public class LibraryService : ILibraryService
         return true;
     }
 
-    public async Task<List<MemberDto>> GetMembers(string libraryId, CancellationToken ct)
+    public async Task<List<MemberDto>> GetMembers(string libraryId, PaginationDto pagination, CancellationToken ct)
     {
         return await _context.Members
         .Where(m => m.LibraryId == libraryId)
+        .Skip((pagination.page - 1) * pagination.pageSize)
+        .Take(pagination.page)
         .Select(m => new MemberDto(m.Id, m.FirstName, m.LastName, m.NationalCode, m.PhoneNumber))
         .ToListAsync(ct);
     }

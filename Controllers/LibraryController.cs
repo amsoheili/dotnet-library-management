@@ -2,7 +2,7 @@ using library_management.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("library")]
+[Route("libraries")]
 public class LibraryController : ControllerBase
 {
     private readonly ILibraryService _libraryService;
@@ -20,9 +20,9 @@ public class LibraryController : ControllerBase
     }
 
     [HttpGet("{id}/books")]
-    public async Task<ApiGeneralResponse<List<BookDTO>>> GetLibraryBooks([FromRoute] string id, CancellationToken ct)
+    public async Task<ApiGeneralResponse<List<BookDTO>>> GetLibraryBooks([FromRoute] string id, [FromQuery] PaginationDto pagination, CancellationToken ct)
     {
-        return new ApiGeneralResponse<List<BookDTO>> { Result = await _libraryService.GetLibraryBooksAsync(id, ct) };
+        return new ApiGeneralResponse<List<BookDTO>> { Result = await _libraryService.GetLibraryBooksAsync(id, pagination, ct) };
     }
 
     [HttpPost]
@@ -33,7 +33,7 @@ public class LibraryController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ApiGeneralResponse<List<LibraryDto>>> GetAllLibraries(CancellationToken ct)
+    public async Task<ApiGeneralResponse<List<LibraryDto>>> GetAllLibraries([FromQuery] PaginationDto? pagination, CancellationToken ct)
     {
         return new ApiGeneralResponse<List<LibraryDto>> { Result = await _libraryService.GetAllLibrariesAsync(ct) };
     }
@@ -45,9 +45,9 @@ public class LibraryController : ControllerBase
     }
 
     [HttpGet("{id}/members")]
-    public async Task<ApiGeneralResponse<List<MemberDto>>> GetMembers([FromRoute] string id, CancellationToken ct)
+    public async Task<ApiGeneralResponse<List<MemberDto>>> GetMembers([FromRoute] string id, [FromQuery] PaginationDto pagination, CancellationToken ct)
     {
-        return new ApiGeneralResponse<List<MemberDto>> { Result = await _libraryService.GetMembers(id, ct) };
+        return new ApiGeneralResponse<List<MemberDto>> { Result = await _libraryService.GetMembers(id, pagination, ct) };
     }
 
     [HttpPost("{id}/lend-book")]
