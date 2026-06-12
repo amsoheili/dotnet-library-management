@@ -21,4 +21,12 @@ Break Library's Books into another controller (nesting)
 
 Setup Elk (elastic + kibana for logging - read about ProblemDetails)
 
-Add pagination for books and libraries
+Add pagination for books and libraries - Done
+
+Implement execution time Filter for our apis
+
+Implement Idempotency Middleware
+
+Implement Maintenance Mode Middleware
+
+Add Cors Policy
