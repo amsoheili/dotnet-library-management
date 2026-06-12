@@ -8,10 +8,15 @@ Add Redis Caching system - Done
 
 Error handling
 
-enhance api general responses
+enhance api general responses (use action results)
 
 Do heavy actions: D
-    -Insert 1 million books into a library
+    -Insert 1 million books into a library (inserted about 20k)
     -Loop through all of them and check how many of their titles contain a certain word
     -Use cancellation token to stop the calculation if needed
-    -
+    
+Add constraint for ids on controller actions routes
+
+Break Library's Books into another controller (nesting)
+
+Setup Elk (elastic + kibana for logging)
