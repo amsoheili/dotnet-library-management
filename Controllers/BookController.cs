@@ -1,7 +1,9 @@
 using library_management.DTOs;
 using library_management.Entities;
+using library_management.Filters;
 using library_management.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace library_management.Controllers;
 
@@ -16,6 +18,7 @@ public class BooksController : ControllerBase
         _booksDataService = booksDataService;
     }
 
+    [ServiceFilter(typeof(ExecutionTimeFilter))]
     [HttpGet]
     public async Task<List<BookDTO>> GetBooks([FromQuery] PaginationDto? pagination, CancellationToken ct)
     {

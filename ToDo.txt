@@ -6,7 +6,7 @@ Add In memory Caching system - Done
 
 Add Redis Caching system - Done
 
-Error handling
+Error handling - Done
 
 enhance api general responses (use action results)
 
@@ -23,7 +23,7 @@ Setup Elk (elastic + kibana for logging - read about ProblemDetails)
 
 Add pagination for books and libraries - Done
 
-Implement execution time Filter for our apis
+Implement execution time Filter for our apis - 
 
 Implement Idempotency Middleware
 

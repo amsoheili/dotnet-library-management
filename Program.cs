@@ -1,4 +1,5 @@
 using library_management.Data;
+using library_management.Filters;
 using library_management.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -19,6 +20,7 @@ builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 builder.Services.AddSingleton<IHybridCacheService, HybridCacheService>();
+builder.Services.AddScoped<ExecutionTimeFilter>();
 
 // jobs
 // builder.Services.AddHostedService<BookDeptReminder>();
