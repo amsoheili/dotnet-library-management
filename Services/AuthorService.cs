@@ -40,7 +40,7 @@ public class AuthorService : IAuthorService
         return await _context.Authors
         .AsNoTracking()
         .Skip((pagination.page - 1) * pagination.pageSize)
-        .Take(pagination.page)
+        .Take(pagination.pageSize)
         .Select(a => new AuthorDto(
             a.Id,
             $"{a.FirstName} {a.LastName}"

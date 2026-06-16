@@ -12,14 +12,14 @@ public class LibraryController : ControllerBase
         _libraryService = libraryService;
     }
 
-    [HttpPost("{libraryId}/add-book/{bookId}")]
+    [HttpPost("{libraryId:guid}/add-book/{bookId:guid}")]
     public async Task<ApiGeneralResponse<Boolean>> AddBook([FromRoute] string libraryId, [FromRoute] string bookId, CancellationToken ct)
     {
         var result = await _libraryService.AddBookToLibraryAsync(libraryId, bookId, ct);
         return new ApiGeneralResponse<bool> { Success = result };
     }
 
-    [HttpGet("{id}/books")]
+    [HttpGet("{id:guid}/books")]
     public async Task<ApiGeneralResponse<List<BookDTO>>> GetLibraryBooks([FromRoute] string id, [FromQuery] PaginationDto pagination, CancellationToken ct)
     {
         return new ApiGeneralResponse<List<BookDTO>> { Result = await _libraryService.GetLibraryBooksAsync(id, pagination, ct) };
@@ -38,25 +38,25 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<List<LibraryDto>> { Result = await _libraryService.GetAllLibrariesAsync(ct) };
     }
 
-    [HttpPost("{id}/add-member")]
+    [HttpPost("{id:guid}/add-member")]
     public async Task<ApiGeneralResponse<bool>> AddMember([FromRoute] string id, [FromBody] MemberDto member, CancellationToken ct)
     {
         return new ApiGeneralResponse<bool> { Result = await _libraryService.AddMember(id, member, ct) };
     }
 
-    [HttpGet("{id}/members")]
+    [HttpGet("{id:guid}/members")]
     public async Task<ApiGeneralResponse<List<MemberDto>>> GetMembers([FromRoute] string id, [FromQuery] PaginationDto pagination, CancellationToken ct)
     {
         return new ApiGeneralResponse<List<MemberDto>> { Result = await _libraryService.GetMembers(id, pagination, ct) };
     }
 
-    [HttpPost("{id}/lend-book")]
+    [HttpPost("{id:guid}/lend-book")]
     public async Task<ApiGeneralResponse<bool>> LendBook([FromRoute] string id, [FromBody] LendBookDto lendBookData, CancellationToken ct)
     {
         return new ApiGeneralResponse<bool> { Result = await _libraryService.LendBook(id, lendBookData.bookId, lendBookData.memberId, ct) };
     }
 
-    [HttpDelete("{id}/retake-book")]
+    [HttpDelete("{id:guid}/retake-book")]
     public async Task<ApiGeneralResponse<bool>> RetakeBook([FromRoute] string id, [FromBody] RetakeBookDto retakeBookData, CancellationToken ct)
     {
         return new ApiGeneralResponse<bool> { Result = await _libraryService.RetakeBook(id, retakeBookData.bookId, retakeBookData.memberId, ct) };

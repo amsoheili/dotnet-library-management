@@ -43,7 +43,7 @@ public class BooksController : ControllerBase
         return result;
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:guid}")]
     public async Task<ApiGeneralResponse<CreateBookDto>> UpdateBook([FromRoute] string id, [FromBody] CreateBookDto book, CancellationToken ct)
     {
         ApiGeneralResponse<CreateBookDto> result = new();
@@ -64,7 +64,7 @@ public class BooksController : ControllerBase
         return result;
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     public async Task<ApiGeneralResponse<BookDTO>> GetBook([FromRoute] string id, CancellationToken ct)
     {
         ApiGeneralResponse<BookDTO> result = new();
@@ -85,7 +85,7 @@ public class BooksController : ControllerBase
         return result;
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     public async Task<ApiGeneralResponse<bool>> DeleteBook([FromRoute] string id, CancellationToken ct)
     {
         ApiGeneralResponse<bool> result = new();

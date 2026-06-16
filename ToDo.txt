@@ -15,7 +15,7 @@ Do heavy actions: D
     -Loop through all of them and check how many of their titles contain a certain word
     -Use cancellation token to stop the calculation if needed
     
-Add constraint for ids and pagination properties on controller actions routes
+Add constraint for ids and pagination properties on controller actions routes - Done
 
 Break Library's Books into another controller (nesting)
 
