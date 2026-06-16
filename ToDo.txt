@@ -23,9 +23,9 @@ Setup Elk (elastic + kibana for logging - read about ProblemDetails)
 
 Add pagination for books and libraries - Done
 
-Implement execution time Filter for our apis - 
+Implement execution time Filter for our apis - Done 
 
-Implement Idempotency Middleware
+Implement Idempotency Middleware - Done
 
 Implement Maintenance Mode Middleware
 

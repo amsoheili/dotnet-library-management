@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<BorrowedBook> BorrowedBooks => Set<BorrowedBook>();
     public DbSet<Library> Libraries => Set<Library>();
     public DbSet<Member> Members => Set<Member>();
+    public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

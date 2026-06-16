@@ -28,6 +28,7 @@ builder.Services.AddScoped<ExecutionTimeFilter>();
 // jobs
 // builder.Services.AddHostedService<BookDeptReminder>();
 
+//
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = "localhost:6380";
@@ -55,6 +56,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<ApiLoggerMiddleware>();
+app.UseMiddleware<IdempotencyMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

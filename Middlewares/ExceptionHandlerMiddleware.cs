@@ -1,4 +1,3 @@
-using System.Xml.Serialization;
 
 public class ExceptionHandlerMiddleware
 {
