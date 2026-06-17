@@ -1,6 +1,6 @@
 Dept reminder background service - Done
 
-Add Cancellation Token to apis
+Add Cancellation Token to apis - Done
 
 Add In memory Caching system - Done
 
@@ -19,7 +19,7 @@ Add constraint for ids and pagination properties on controller actions routes - 
 
 Break Library's Books into another controller (nesting)
 
-Setup Elk (elastic + kibana for logging - read about ProblemDetails)
+Setup Elk (elastic + kibana for logging - read about ProblemDetails) - Done
 
 Add pagination for books and libraries - Done
 
@@ -29,4 +29,10 @@ Implement Idempotency Middleware - Done
 
 Implement Maintenance Mode Middleware
 
+Implement Correlation id Middleware
+
 Add Cors Policy
+
+Save the idempotency records inside redis instead of mysql
+
+Add distributed lock of redis inside the idempotency middleware
