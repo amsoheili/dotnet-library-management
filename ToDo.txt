@@ -27,7 +27,7 @@ Implement execution time Filter for our apis - Done
 
 Implement Idempotency Middleware - Done
 
-Implement Maintenance Mode Middleware
+Implement Maintenance Mode Middleware - 
 
 Implement Correlation id Middleware
 
@@ -36,3 +36,11 @@ Add Cors Policy
 Save the idempotency records inside redis instead of mysql
 
 Add distributed lock of redis inside the idempotency middleware
+
+Implement Authentication , use built in .net capabilities 
+
+Implement Authorization (role based - policy based)
+
+Implement custom Authentication
+
+Custom Hasher service for user passwords

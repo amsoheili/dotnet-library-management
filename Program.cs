@@ -1,7 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using library_management.Data;
 using library_management.Filters;
 using library_management.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +29,42 @@ builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 builder.Services.AddSingleton<IHybridCacheService, HybridCacheService>();
 builder.Services.AddScoped<ExecutionTimeFilter>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+// authentiacation
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var jwt = builder.Configuration.GetSection("Jwt");
+    options.MapInboundClaims = false;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = jwt["Issuer"],
+
+        ValidateAudience = true,
+        ValidAudience = jwt["Audience"],
+
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwt["Key"])),
+
+        ClockSkew = TimeSpan.Zero
+
+    };
+});
+builder.Services.AddAuthorization();
 
 // jobs
 // builder.Services.AddHostedService<BookDeptReminder>();

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using library_management.Data;
 
@@ -11,9 +12,11 @@ using library_management.Data;
 namespace library_management.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260324145141_UserEntity")]
+    partial class UserEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -144,29 +147,6 @@ namespace library_management.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("RefreshToken", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
-                });
-
             modelBuilder.Entity("library_management.Entities.Book", b =>
                 {
                     b.Property<string>("Id")
@@ -286,17 +266,6 @@ namespace library_management.Migrations
                         .HasForeignKey("LibrarianId");
 
                     b.Navigation("Librarian");
-                });
-
-            modelBuilder.Entity("RefreshToken", b =>
-                {
-                    b.HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("library_management.Entities.Book", b =>

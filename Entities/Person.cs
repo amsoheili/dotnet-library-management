@@ -7,5 +7,4 @@ public class Person : BaseEntity
     public string NationalCode { get; set; }
     public string PhoneNumber { get; set; }
     public string? Address { get; set; }
-
 }

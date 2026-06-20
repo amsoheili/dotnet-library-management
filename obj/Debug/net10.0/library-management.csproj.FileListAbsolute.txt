@@ -142,3 +142,11 @@
 /home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Serilog.Formatting.Elasticsearch.dll
 /home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Serilog.Sinks.Elasticsearch.dll
 /home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Serilog.Sinks.PeriodicBatching.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.IdentityModel.Abstractions.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.IdentityModel.Logging.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.IdentityModel.Protocols.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.IdentityModel.Tokens.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/System.IdentityModel.Tokens.Jwt.dll

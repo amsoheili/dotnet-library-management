@@ -9,12 +9,14 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Book> Books => Set<Book>();
+    public DbSet<User> Users => Set<User>();
     public DbSet<Person> People => Set<Person>();
     public DbSet<Author> Authors => Set<Author>();
     public DbSet<BorrowedBook> BorrowedBooks => Set<BorrowedBook>();
     public DbSet<Library> Libraries => Set<Library>();
     public DbSet<Member> Members => Set<Member>();
     public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
