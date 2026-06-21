@@ -6,8 +6,10 @@ using Microsoft.IdentityModel.Tokens;
 
 public interface ITokenService
 {
-    public string GenerateAccessToken(User user);
+    public string GenerateAccessToken(LibraryUser user);
     public string GenerateRefreshToken();
+    public DateTime GetRefreshExpiryDate();
+    public DateTime GetAccessExpiryDate();
 }
 
 public class TokenService(
@@ -15,7 +17,7 @@ public class TokenService(
     ILogger<TokenService> _logger
 ) : ITokenService
 {
-    public string GenerateAccessToken(User user)
+    public string GenerateAccessToken(LibraryUser user)
     {
         var jwt = _config.GetSection("Jwt");
         _logger.LogWarning($"user id: {user.Id}");
@@ -51,4 +53,15 @@ public class TokenService(
 
         return Convert.ToBase64String(randomBytes);
     }
+
+    public DateTime GetRefreshExpiryDate()
+    {
+        return DateTime.UtcNow.AddDays(int.Parse(_config.GetSection("jwt")["RefreshTokenExpirationDays"]));
+    }
+
+    public DateTime GetAccessExpiryDate()
+    {
+        return DateTime.UtcNow.AddMinutes(int.Parse(_config.GetSection("jwt")["AccessTokenExpirationMinutes"]));
+    }
+
 }

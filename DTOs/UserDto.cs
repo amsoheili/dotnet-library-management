@@ -15,3 +15,7 @@ public record LoginUserResponseDto(
     string refreshToken,
     long expirationDate
 );
+
+public record RefreshUserRequestDto(
+    string refreshToken
+);

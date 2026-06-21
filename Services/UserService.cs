@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
 using library_management.Data;
 using Microsoft.AspNetCore.Identity;
@@ -9,26 +10,27 @@ public interface IUserService
 
     public Task<LoginUserResponseDto> Login(LoginUserRequestDto loginUserRequestDto);
 
-    // public Task<LoginUserResponseDto> RefreshToken(LoginUserRequestDto loginUserRequestDto);
+    public Task<LoginUserResponseDto> RefreshToken(RefreshUserRequestDto refreshUserRequestDto);
 }
 
 public class UserService(
     AppDbContext _context,
-    IPasswordHasher<User> _passwordHasher,
+    IPasswordHasher<LibraryUser> _passwordHasher,
     ITokenService _tokenService,
-    IConfiguration _config
+    IConfiguration _config,
+    IUserClaimsService _userClaimsService
 ) : IUserService
 {
     public async Task<string> Register(RegisterUserDto registerUserDto)
     {
-        var user = await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Username == registerUserDto.username);
+        var user = await _context.LibraryUsers.AsNoTracking().SingleOrDefaultAsync(u => u.Username == registerUserDto.username);
 
         if (user is not null)
         {
             return user.Id;
         }
 
-        var newUser = new User
+        var newUser = new LibraryUser
         {
             NationalCode = registerUserDto.nationalCode,
             PhoneNumber = registerUserDto.phoneNumber,
@@ -37,17 +39,16 @@ public class UserService(
 
         newUser.HashedPassword = _passwordHasher.HashPassword(newUser, registerUserDto.password);
 
-        await _context.Users.AddAsync(newUser);
+        await _context.LibraryUsers.AddAsync(newUser);
         await _context.SaveChangesAsync();
         return newUser.Id;
     }
 
     public async Task<LoginUserResponseDto> Login(LoginUserRequestDto loginUserRequestDto)
     {
-        var user = await _context.Users
+        var user = await _context.LibraryUsers
                         .AsNoTracking()
                         .SingleOrDefaultAsync(u => u.Username == loginUserRequestDto.username);
-
         if (user is null)
             return null;
 
@@ -67,7 +68,7 @@ public class UserService(
         {
             Token = refreshToken,
             UserId = user.Id,
-            ExpiryDate = DateTime.UtcNow.AddDays(int.Parse(_config.GetSection("jwt")["RefreshTokenExpirationDays"]))
+            ExpiryDate = _tokenService.GetRefreshExpiryDate()
         };
 
         await _context.RefreshTokens.AddAsync(refreshTokenRecord);
@@ -79,4 +80,44 @@ public class UserService(
             new DateTimeOffset(refreshTokenRecord.ExpiryDate).ToUnixTimeMilliseconds()
             );
     }
+
+
+    public async Task<LoginUserResponseDto> RefreshToken(RefreshUserRequestDto refreshUserRequestDto)
+    {
+        var userId = _userClaimsService.GetUserId();
+
+        var refreshTokenRecord = await _context.RefreshTokens
+            .AsNoTracking()
+            .Include(r => r.User)
+            .SingleOrDefaultAsync(rt => rt.Token == refreshUserRequestDto.refreshToken && rt.UserId == userId);
+
+        if (refreshTokenRecord is null || refreshTokenRecord.User is null)
+            return null;
+
+        if (refreshTokenRecord.ExpiryDate < DateTime.UtcNow)
+            return null;
+
+        var accessToken = _tokenService.GenerateAccessToken(refreshTokenRecord.User);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+
+
+        var newRefreshTokenRecord = new RefreshToken
+        {
+            Token = refreshToken,
+            UserId = refreshTokenRecord.UserId,
+            ExpiryDate = _tokenService.GetRefreshExpiryDate()
+        };
+
+        _context.RefreshTokens.Remove(refreshTokenRecord);
+        _context.RefreshTokens.Add(newRefreshTokenRecord);
+
+        _context.SaveChangesAsync();
+        return new LoginUserResponseDto
+        (
+            accessToken,
+            refreshToken,
+            new DateTimeOffset(_tokenService.GetAccessExpiryDate()).ToUnixTimeMilliseconds()
+        );
+    }
+
 }

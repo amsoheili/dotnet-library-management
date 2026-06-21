@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -20,11 +21,11 @@ public class UserController(
         return new ApiGeneralResponse<LoginUserResponseDto> { Result = await _userService.Login(loginUserRequestDto) };
     }
 
-    // [HttpPost("refresh")]
-    // public async Task<ApiGeneralResponse<Object>> Refresh()
-    // {
-
-    // }
+    [HttpPost("refresh")]
+    public async Task<ApiGeneralResponse<LoginUserResponseDto>> Refresh([FromBody] RefreshUserRequestDto refreshUserRequestDto)
+    {
+        return new ApiGeneralResponse<LoginUserResponseDto> { Result = await _userService.RefreshToken(refreshUserRequestDto) };
+    }
 
     [HttpGet("me")]
     public ApiGeneralResponse<object> Me()

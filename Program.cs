@@ -21,6 +21,7 @@ builder.Services.AddControllers(options =>
 });
 builder.Services.AddOpenApi();
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 
 // services
 builder.Services.AddScoped<IBooksDataService, BooksDataService>();
@@ -30,9 +31,9 @@ builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 builder.Services.AddSingleton<IHybridCacheService, HybridCacheService>();
 builder.Services.AddScoped<ExecutionTimeFilter>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IPasswordHasher<LibraryUser>, PasswordHasher<LibraryUser>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-
+builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
