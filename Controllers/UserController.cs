@@ -27,11 +27,10 @@ public class UserController(
         return new ApiGeneralResponse<LoginUserResponseDto> { Result = await _userService.RefreshToken(refreshUserRequestDto) };
     }
 
+    [Authorize]
     [HttpGet("me")]
-    public ApiGeneralResponse<object> Me()
+    public ApiGeneralResponse<UserGetMeDto> Me()
     {
-        var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        var phoneNumber = User.FindFirst(JwtRegisteredClaimNames.PhoneNumber)?.Value;
-        return new ApiGeneralResponse<object> { Result = new { userId, phoneNumber } };
+        return new ApiGeneralResponse<UserGetMeDto> { Result = _userService.GetMe() };
     }
 }

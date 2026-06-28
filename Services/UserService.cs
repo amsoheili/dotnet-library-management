@@ -11,6 +11,8 @@ public interface IUserService
     public Task<LoginUserResponseDto> Login(LoginUserRequestDto loginUserRequestDto);
 
     public Task<LoginUserResponseDto> RefreshToken(RefreshUserRequestDto refreshUserRequestDto);
+
+    public UserGetMeDto GetMe();
 }
 
 public class UserService(
@@ -120,4 +122,11 @@ public class UserService(
         );
     }
 
+    public UserGetMeDto GetMe()
+    {
+        return new UserGetMeDto(
+            userId: _userClaimsService.GetUserId(),
+            phoneNumber: _userClaimsService.GetPhoneNumber()
+        );
+    }
 }
