@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
     public DbSet<Member> Members => Set<Member>();
     public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PersonRole> PersonRoles => Set<PersonRole>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
