@@ -13,6 +13,7 @@ public interface IUserService
     public Task<LoginUserResponseDto> RefreshToken(RefreshUserRequestDto refreshUserRequestDto);
 
     public UserGetMeDto GetMe();
+    public Task<bool> AssignRole(AssignRoleDto assignRoleDto);
 }
 
 public class UserService(
@@ -50,6 +51,7 @@ public class UserService(
     {
         var user = await _context.LibraryUsers
                         .AsNoTracking()
+                        .Include(lu => lu.Roles)
                         .SingleOrDefaultAsync(u => u.Username == loginUserRequestDto.username);
         if (user is null)
             return null;
@@ -62,8 +64,8 @@ public class UserService(
 
         if (hashCompareResult != PasswordVerificationResult.Success)
             return null;
-
-        var accessToken = _tokenService.GenerateAccessToken(user, new List<UserRolesEnum> { UserRolesEnum.Admin });
+        var userRoles = user.Roles.Select(r => r.Role).ToList();
+        var accessToken = _tokenService.GenerateAccessToken(user, userRoles);
         var refreshToken = _tokenService.GenerateRefreshToken();
 
         var refreshTokenRecord = new RefreshToken
@@ -91,6 +93,7 @@ public class UserService(
         var refreshTokenRecord = await _context.RefreshTokens
             .AsNoTracking()
             .Include(r => r.User)
+            .ThenInclude(u => u.Roles)
             .SingleOrDefaultAsync(rt => rt.Token == refreshUserRequestDto.refreshToken && rt.UserId == userId);
 
         if (refreshTokenRecord is null || refreshTokenRecord.User is null)
@@ -99,7 +102,8 @@ public class UserService(
         if (refreshTokenRecord.ExpiryDate < DateTime.UtcNow)
             return null;
 
-        var accessToken = _tokenService.GenerateAccessToken(refreshTokenRecord.User, new List<UserRolesEnum> { UserRolesEnum.Admin });
+        var userRoles = refreshTokenRecord.User.Roles.Select(r => r.Role).ToList();
+        var accessToken = _tokenService.GenerateAccessToken(refreshTokenRecord.User, userRoles);
         var refreshToken = _tokenService.GenerateRefreshToken();
 
 
@@ -130,4 +134,21 @@ public class UserService(
             roles: _userClaimsService.GetRoles()
         );
     }
+
+    public async Task<bool> AssignRole(AssignRoleDto assignRoleDto)
+    {
+        var alreadyHasRole = await _context.PersonRoles
+                        .AsNoTracking()
+                        .AnyAsync(pr => pr.PersonId == assignRoleDto.userId && pr.Role == assignRoleDto.role);
+
+        if (alreadyHasRole)
+            return true;
+
+        _context.PersonRoles.Add(new PersonRole { PersonId = assignRoleDto.userId, Role = assignRoleDto.role });
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
 }

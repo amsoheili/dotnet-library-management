@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 
 [ApiController]
 [Route("user")]
@@ -32,5 +33,12 @@ public class UserController(
     public ApiGeneralResponse<UserGetMeDto> Me()
     {
         return new ApiGeneralResponse<UserGetMeDto> { Result = _userService.GetMe() };
+    }
+
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
+    [HttpPost("assign-role")]
+    public async Task<ApiGeneralResponse<bool>> AssignRole([FromBody] AssignRoleDto assignRoleDto)
+    {
+        return new ApiGeneralResponse<bool> { Result = await _userService.AssignRole(assignRoleDto) };
     }
 }
