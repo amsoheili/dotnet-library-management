@@ -1,4 +1,5 @@
 using library_management.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -12,6 +13,7 @@ public class LibraryController : ControllerBase
         _libraryService = libraryService;
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpPost("{libraryId:guid}/add-book/{bookId:guid}")]
     public async Task<ApiGeneralResponse<Boolean>> AddBook([FromRoute] string libraryId, [FromRoute] string bookId, CancellationToken ct)
     {
@@ -25,6 +27,7 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<List<BookDTO>> { Result = await _libraryService.GetLibraryBooksAsync(id, pagination, ct) };
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpPost]
     public async Task<ApiGeneralResponse<string>> CreateLibrary([FromBody] CreateLibraryDto library, CancellationToken ct)
     {
@@ -38,6 +41,7 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<List<LibraryDto>> { Result = await _libraryService.GetAllLibrariesAsync(ct) };
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpPost("{id:guid}/add-member")]
     public async Task<ApiGeneralResponse<bool>> AddMember([FromRoute] string id, [FromBody] MemberDto member, CancellationToken ct)
     {
@@ -50,12 +54,14 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<List<MemberDto>> { Result = await _libraryService.GetMembers(id, pagination, ct) };
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpPost("{id:guid}/lend-book")]
     public async Task<ApiGeneralResponse<bool>> LendBook([FromRoute] string id, [FromBody] LendBookDto lendBookData, CancellationToken ct)
     {
         return new ApiGeneralResponse<bool> { Result = await _libraryService.LendBook(id, lendBookData.bookId, lendBookData.memberId, ct) };
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpDelete("{id:guid}/retake-book")]
     public async Task<ApiGeneralResponse<bool>> RetakeBook([FromRoute] string id, [FromBody] RetakeBookDto retakeBookData, CancellationToken ct)
     {

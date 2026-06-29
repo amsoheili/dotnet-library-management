@@ -2,6 +2,7 @@ using library_management.DTOs;
 using library_management.Entities;
 using library_management.Filters;
 using library_management.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -31,6 +32,7 @@ public class BooksController : ControllerBase
             )).ToList();
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpPost]
     public async Task<Boolean> CreateBookAsync([FromBody] CreateBookDto book, CancellationToken ct)
     {
@@ -43,6 +45,7 @@ public class BooksController : ControllerBase
         return result;
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpPut("{id:guid}")]
     public async Task<ApiGeneralResponse<CreateBookDto>> UpdateBook([FromRoute] string id, [FromBody] CreateBookDto book, CancellationToken ct)
     {

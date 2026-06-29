@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -10,6 +11,7 @@ public class AuthorController
         _authorService = authorService;
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpPost]
     public async Task<ApiGeneralResponse<AuthorDto>> CreateAuthor([FromBody] CreateAuthorDto author, CancellationToken ct)
     {

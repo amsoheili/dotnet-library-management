@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 
 public interface ITokenService
 {
-    public string GenerateAccessToken(LibraryUser user);
+    public string GenerateAccessToken(LibraryUser user, List<UserRolesEnum>? userRoles);
     public string GenerateRefreshToken();
     public DateTime GetRefreshExpiryDate();
     public DateTime GetAccessExpiryDate();
@@ -17,15 +17,23 @@ public class TokenService(
     ILogger<TokenService> _logger
 ) : ITokenService
 {
-    public string GenerateAccessToken(LibraryUser user)
+    public string GenerateAccessToken(LibraryUser user, List<UserRolesEnum>? userRoles)
     {
         var jwt = _config.GetSection("Jwt");
         _logger.LogWarning($"user id: {user.Id}");
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            new Claim(JwtRegisteredClaimNames.PhoneNumber, user.PhoneNumber)
+            new Claim(JwtRegisteredClaimNames.PhoneNumber, user.PhoneNumber),
         };
+
+        if (userRoles is not null && userRoles.Count > 0)
+        {
+            foreach (var role in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+            }
+        }
 
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["key"]));
 

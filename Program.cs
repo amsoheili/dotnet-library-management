@@ -61,7 +61,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(jwt["Key"])),
 
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero,
 
     };
 });

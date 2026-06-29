@@ -63,7 +63,7 @@ public class UserService(
         if (hashCompareResult != PasswordVerificationResult.Success)
             return null;
 
-        var accessToken = _tokenService.GenerateAccessToken(user);
+        var accessToken = _tokenService.GenerateAccessToken(user, new List<UserRolesEnum> { UserRolesEnum.Admin });
         var refreshToken = _tokenService.GenerateRefreshToken();
 
         var refreshTokenRecord = new RefreshToken
@@ -99,7 +99,7 @@ public class UserService(
         if (refreshTokenRecord.ExpiryDate < DateTime.UtcNow)
             return null;
 
-        var accessToken = _tokenService.GenerateAccessToken(refreshTokenRecord.User);
+        var accessToken = _tokenService.GenerateAccessToken(refreshTokenRecord.User, new List<UserRolesEnum> { UserRolesEnum.Admin });
         var refreshToken = _tokenService.GenerateRefreshToken();
 
 
@@ -126,7 +126,8 @@ public class UserService(
     {
         return new UserGetMeDto(
             userId: _userClaimsService.GetUserId(),
-            phoneNumber: _userClaimsService.GetPhoneNumber()
+            phoneNumber: _userClaimsService.GetPhoneNumber(),
+            roles: _userClaimsService.GetRoles()
         );
     }
 }

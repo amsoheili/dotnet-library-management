@@ -1,4 +1,5 @@
 public record UserGetMeDto(
     string userId,
-    string phoneNumber
+    string phoneNumber,
+    List<string>? roles
 );
