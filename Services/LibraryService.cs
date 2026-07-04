@@ -159,12 +159,7 @@ public class LibraryService : ILibraryService
         if (member is null)
             return false;
 
-        var borrowedBook = await _context.BorrowedBooks.FirstOrDefaultAsync(bB => bB.BookId == bookId && bB.LibraryId == libraryId, ct);
-
-        if (borrowedBook is null)
-            return false;
-
-        _context.Remove(borrowedBook);
+        await _context.BorrowedBooks.Where(bB => bB.Id == bookId && bB.LibraryId == libraryId).ExecuteDeleteAsync(ct);
 
         await _context.SaveChangesAsync(ct);
 

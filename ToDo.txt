@@ -51,7 +51,7 @@ Implement feature:
     user can only retake his own book not others books, so we should add a custom policy based AuthorizationHandler 
 
 Implement feature:
-    each library has it's own admins,
+    each library has it's own admins - Done,
     each admin can lend or take the books of his own library
 
 Implement Super admin and granting admin roles - Done

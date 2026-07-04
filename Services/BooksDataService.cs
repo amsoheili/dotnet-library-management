@@ -51,9 +51,7 @@ public class BooksDataService : IBooksDataService
 
     public async Task DeleteBook(string id, CancellationToken ct)
     {
-        var book = await _context.Books.FindAsync(id, ct);
-        if (book is null) return;
-        _context.Books.Remove(book);
+        await _context.Books.Where(b => b.Id == id).ExecuteDeleteAsync(ct);
         await _context.SaveChangesAsync(ct);
     }
 
