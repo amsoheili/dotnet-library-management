@@ -2,7 +2,8 @@ public record RegisterUserDto(
     string username,
     string password,
     string nationalCode,
-    string phoneNumber
+    string phoneNumber,
+    string? libraryId
 );
 
 public record LoginUserRequestDto(

@@ -7,10 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 public class LibraryController : ControllerBase
 {
     private readonly ILibraryService _libraryService;
+    private readonly IAuthorizationService _authorizationService;
 
-    public LibraryController(ILibraryService libraryService)
+    public LibraryController(
+        ILibraryService libraryService,
+        IAuthorizationService authorizationService
+    )
     {
         _libraryService = libraryService;
+        _authorizationService = authorizationService;
     }
 
     [Authorize(Roles = nameof(UserRolesEnum.Admin))]
@@ -48,10 +53,20 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<bool> { Result = await _libraryService.AddMember(id, member, ct) };
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpGet("{id:guid}/members")]
-    public async Task<ApiGeneralResponse<List<MemberDto>>> GetMembers([FromRoute] string id, [FromQuery] PaginationDto pagination, CancellationToken ct)
+    public async Task<ApiGeneralResponse<List<LibraryUserDto>>> GetMembers([FromRoute] string id, [FromQuery] PaginationDto pagination, CancellationToken ct)
     {
-        return new ApiGeneralResponse<List<MemberDto>> { Result = await _libraryService.GetMembers(id, pagination, ct) };
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            id,
+            AppAuthorizationPolicies.IsLibraryUser
+        );
+
+        if (!authorizationResult.Succeeded)
+            return new ApiGeneralResponse<List<LibraryUserDto>> { Result = null };
+
+        return new ApiGeneralResponse<List<LibraryUserDto>> { Result = await _libraryService.GetMembers(id, pagination, ct) };
     }
 
     [Authorize(Roles = nameof(UserRolesEnum.Admin))]

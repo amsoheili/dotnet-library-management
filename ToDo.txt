@@ -39,7 +39,22 @@ Add distributed lock of redis inside the idempotency middleware
 
 Implement Authentication , use built in .net capabilities - Done
 
-Implement Authorization (role based - policy based)
+Implement Authorization 
+     - role based Done
+     - policy based ( add some custom handlers(AuthorizationHandler)) 
+     - claim based 
+     - resource based 
+     - permission based
+     
+Implement feature:
+    user logs in and borrows some books, and retake them
+    user can only retake his own book not others books, so we should add a custom policy based AuthorizationHandler 
+
+Implement feature:
+    each library has it's own admins,
+    each admin can lend or take the books of his own library
+
+Implement Super admin and granting admin roles - Done
 
 Implement custom Authentication
 

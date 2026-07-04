@@ -36,9 +36,9 @@ public class UserController(
     }
 
     [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
-    [HttpPost("assign-role")]
-    public async Task<ApiGeneralResponse<bool>> AssignRole([FromBody] AssignRoleDto assignRoleDto)
+    [HttpPost("grant-admin")]
+    public async Task<ApiGeneralResponse<bool>> GrantAdmin([FromBody] GrantAdminDto grantAdminDto)
     {
-        return new ApiGeneralResponse<bool> { Result = await _userService.AssignRole(assignRoleDto) };
+        return new ApiGeneralResponse<bool> { Result = await _userService.GrantAdmin(grantAdminDto) };
     }
 }

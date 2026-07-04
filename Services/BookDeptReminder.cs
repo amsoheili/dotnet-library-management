@@ -37,12 +37,12 @@ public class BookDeptReminder : BackgroundService
             var passedDateBorrowedBooks = await db.BorrowedBooks
                 .Include(bB => bB.Book)
                 .Include(bB => bB.Library)
-                .Include(bB => bB.Member)
+                .Include(bB => bB.LibraryUser)
                 .Where(bB => bB.Date < threshold)
                 .ToListAsync(cancellationToken);
             foreach (var bB in passedDateBorrowedBooks)
             {
-                _logger.LogWarning($"Library: {bB.Library.FullName}, Book: {bB.Book.Title}, Member: {bB.Member.FirstName} {bB.Member.LastName}");
+                _logger.LogWarning($"Library: {bB.Library.FullName}, Book: {bB.Book.Title}, Member: {bB.LibraryUser.FirstName} {bB.LibraryUser.LastName}");
             }
         }
         catch (Exception error)

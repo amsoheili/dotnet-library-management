@@ -14,18 +14,17 @@ public class AppDbContext : DbContext
     public DbSet<Author> Authors => Set<Author>();
     public DbSet<BorrowedBook> BorrowedBooks => Set<BorrowedBook>();
     public DbSet<Library> Libraries => Set<Library>();
-    public DbSet<Member> Members => Set<Member>();
     public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PersonRole> PersonRoles => Set<PersonRole>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Member>()
+        modelBuilder.Entity<LibraryUser>()
             .HasIndex(m => new { m.NationalCode, m.LibraryId })
             .IsUnique();
 
-        modelBuilder.Entity<Member>()
+        modelBuilder.Entity<LibraryUser>()
             .HasMany(m => m.FavoriteBooks)
             .WithMany()
             .UsingEntity(j => j.ToTable("FavoriteBooks"));

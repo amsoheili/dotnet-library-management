@@ -19,7 +19,7 @@ public interface ILibraryService
 
     public Task<bool> AddMember(string libraryId, MemberDto member, CancellationToken ct);
 
-    public Task<List<MemberDto>> GetMembers(string libraryId, PaginationDto pagination, CancellationToken ct);
+    public Task<List<LibraryUserDto>> GetMembers(string libraryId, PaginationDto pagination, CancellationToken ct);
 
     public Task<bool> RetakeBook(string libraryId, string bookId, string memberId, CancellationToken ct);
 }
@@ -95,7 +95,7 @@ public class LibraryService : ILibraryService
 
     public async Task<bool> LendBook(string libraryId, string bookId, string memberId, CancellationToken ct)
     {
-        var member = await _context.Members.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId, ct);
+        var member = await _context.LibraryUsers.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId, ct);
 
         if (member is null)
             return false;
@@ -115,7 +115,7 @@ public class LibraryService : ILibraryService
         await _context.BorrowedBooks.AddAsync(new BorrowedBook
         {
             BookId = bookId,
-            MemberId = memberId,
+            LibraryUserId = memberId,
             LibraryId = libraryId,
             Date = DateTime.UtcNow
         }, ct);
@@ -123,44 +123,38 @@ public class LibraryService : ILibraryService
         return true;
     }
 
-    public async Task<bool> AddMember(string libraryId, MemberDto member, CancellationToken ct)
+    public async Task<bool> AddMember(string libraryId, MemberDto memberDto, CancellationToken ct)
     {
         var libraryExists = await _context.Libraries.AnyAsync(l => l.Id == libraryId, ct);
 
         if (!libraryExists)
             return false;
 
-        var memberExists = await _context.Members.AnyAsync(m => m.NationalCode == member.NationalCode && m.LibraryId == libraryId, ct);
+        var libraryUser = await _context.LibraryUsers
+                        .SingleOrDefaultAsync(u => u.Id == memberDto.userId);
 
-        if (memberExists)
+        if (libraryUser is null)
             return false;
 
-        var newMember = new Member
-        {
-            FirstName = member.FirstName,
-            LastName = member.LastName,
-            NationalCode = member.NationalCode,
-            PhoneNumber = member.PhoneNumber,
-            LibraryId = libraryId
-        };
-        await _context.Members.AddAsync(newMember, ct);
+        libraryUser.LibraryId = memberDto.libraryId;
+
         await _context.SaveChangesAsync(ct);
         return true;
     }
 
-    public async Task<List<MemberDto>> GetMembers(string libraryId, PaginationDto pagination, CancellationToken ct)
+    public async Task<List<LibraryUserDto>> GetMembers(string libraryId, PaginationDto pagination, CancellationToken ct)
     {
-        return await _context.Members
+        return await _context.LibraryUsers
         .Where(m => m.LibraryId == libraryId)
         .Skip((pagination.page - 1) * pagination.pageSize)
         .Take(pagination.page)
-        .Select(m => new MemberDto(m.Id, m.FirstName, m.LastName, m.NationalCode, m.PhoneNumber))
+        .Select(m => new LibraryUserDto(m.Id, m.Username, m.FirstName, m.LastName, m.NationalCode, m.PhoneNumber))
         .ToListAsync(ct);
     }
 
     public async Task<bool> RetakeBook(string libraryId, string bookId, string memberId, CancellationToken ct)
     {
-        var member = await _context.Members.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId, ct);
+        var member = await _context.LibraryUsers.FirstOrDefaultAsync(m => m.Id == memberId && m.LibraryId == libraryId, ct);
 
         if (member is null)
             return false;

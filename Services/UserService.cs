@@ -13,7 +13,7 @@ public interface IUserService
     public Task<LoginUserResponseDto> RefreshToken(RefreshUserRequestDto refreshUserRequestDto);
 
     public UserGetMeDto GetMe();
-    public Task<bool> AssignRole(AssignRoleDto assignRoleDto);
+    public Task<bool> GrantAdmin(GrantAdminDto grantAdminDto);
 }
 
 public class UserService(
@@ -38,6 +38,7 @@ public class UserService(
             NationalCode = registerUserDto.nationalCode,
             PhoneNumber = registerUserDto.phoneNumber,
             Username = registerUserDto.username,
+            LibraryId = registerUserDto?.libraryId
         };
 
         newUser.HashedPassword = _passwordHasher.HashPassword(newUser, registerUserDto.password);
@@ -135,19 +136,22 @@ public class UserService(
         );
     }
 
-    public async Task<bool> AssignRole(AssignRoleDto assignRoleDto)
+    public async Task<bool> GrantAdmin(GrantAdminDto grantAdminDto)
     {
-        var alreadyHasRole = await _context.PersonRoles
+        var isLibraryUser = await _context.LibraryUsers
+                                    .AsNoTracking()
+                                    .AnyAsync(p => p.Id == grantAdminDto.userId && p.LibraryId == grantAdminDto.libraryId);
+
+        var alreadyIsAdmin = await _context.PersonRoles
                         .AsNoTracking()
-                        .AnyAsync(pr => pr.PersonId == assignRoleDto.userId && pr.Role == assignRoleDto.role);
+                        .AnyAsync(pr => pr.PersonId == grantAdminDto.userId && pr.Role == UserRolesEnum.Admin);
 
-        if (alreadyHasRole)
-            return true;
-
-        _context.PersonRoles.Add(new PersonRole { PersonId = assignRoleDto.userId, Role = assignRoleDto.role });
+        if (isLibraryUser && !alreadyIsAdmin)
+        {
+            _context.PersonRoles.Add(new PersonRole { PersonId = grantAdminDto.userId, Role = UserRolesEnum.Admin });
+        }
 
         await _context.SaveChangesAsync();
-
         return true;
     }
 

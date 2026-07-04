@@ -1,4 +1,4 @@
-public record MemberDto(
+public record GrantAdminDto(
     string userId,
     string libraryId
 );

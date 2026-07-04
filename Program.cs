@@ -4,6 +4,7 @@ using library_management.Data;
 using library_management.Filters;
 using library_management.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -65,7 +66,14 @@ builder.Services.AddAuthentication(options =>
 
     };
 });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AppAuthorizationPolicies.IsLibraryUser, policy =>
+        policy.AddRequirements(new LibraryUserAccessRequirment())
+    );
+});
+
+builder.Services.AddScoped<IAuthorizationHandler, LibraryUserAccessHandler>();
 
 // jobs
 // builder.Services.AddHostedService<BookDeptReminder>();

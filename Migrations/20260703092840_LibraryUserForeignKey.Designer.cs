@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using library_management.Data;
 
@@ -11,9 +12,11 @@ using library_management.Data;
 namespace library_management.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260703092840_LibraryUserForeignKey")]
+    partial class LibraryUserForeignKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,17 +25,17 @@ namespace library_management.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("BookLibraryUser", b =>
+            modelBuilder.Entity("BookMember", b =>
                 {
                     b.Property<string>("FavoriteBooksId")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("LibraryUserId")
+                    b.Property<string>("MemberId")
                         .HasColumnType("varchar(255)");
 
-                    b.HasKey("FavoriteBooksId", "LibraryUserId");
+                    b.HasKey("FavoriteBooksId", "MemberId");
 
-                    b.HasIndex("LibraryUserId");
+                    b.HasIndex("MemberId");
 
                     b.ToTable("FavoriteBooks", (string)null);
                 });
@@ -53,7 +56,7 @@ namespace library_management.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("LibraryUserId")
+                    b.Property<string>("MemberId")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
@@ -63,7 +66,7 @@ namespace library_management.Migrations
 
                     b.HasIndex("LibraryId");
 
-                    b.HasIndex("LibraryUserId");
+                    b.HasIndex("MemberId");
 
                     b.ToTable("BorrowedBooks");
                 });
@@ -197,7 +200,7 @@ namespace library_management.Migrations
                     b.Property<string>("LibraryId")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("LibraryUserId")
+                    b.Property<string>("MemberId")
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("Title")
@@ -210,7 +213,7 @@ namespace library_management.Migrations
 
                     b.HasIndex("LibraryId");
 
-                    b.HasIndex("LibraryUserId");
+                    b.HasIndex("MemberId");
 
                     b.ToTable("Books");
                 });
@@ -233,22 +236,41 @@ namespace library_management.Migrations
                     b.Property<string>("LibraryId")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime?>("MembershipStart")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasIndex("LibraryId");
 
-                    b.HasIndex("NationalCode", "LibraryId")
-                        .IsUnique();
+                    b.ToTable("People", t =>
+                        {
+                            t.Property("LibraryId")
+                                .HasColumnName("LibraryUser_LibraryId");
+                        });
 
                     b.HasDiscriminator().HasValue("LibraryUser");
                 });
 
-            modelBuilder.Entity("BookLibraryUser", b =>
+            modelBuilder.Entity("Member", b =>
+                {
+                    b.HasBaseType("Person");
+
+                    b.Property<string>("LibraryId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("MembershipStart")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasIndex("LibraryId");
+
+                    b.HasIndex("NationalCode", "LibraryId")
+                        .IsUnique();
+
+                    b.HasDiscriminator().HasValue("Member");
+                });
+
+            modelBuilder.Entity("BookMember", b =>
                 {
                     b.HasOne("library_management.Entities.Book", null)
                         .WithMany()
@@ -256,9 +278,9 @@ namespace library_management.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LibraryUser", null)
+                    b.HasOne("Member", null)
                         .WithMany()
-                        .HasForeignKey("LibraryUserId")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -277,9 +299,9 @@ namespace library_management.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LibraryUser", "LibraryUser")
+                    b.HasOne("Member", "Member")
                         .WithMany()
-                        .HasForeignKey("LibraryUserId")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -287,7 +309,7 @@ namespace library_management.Migrations
 
                     b.Navigation("Library");
 
-                    b.Navigation("LibraryUser");
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("Library", b =>
@@ -331,9 +353,9 @@ namespace library_management.Migrations
                         .WithMany("Books")
                         .HasForeignKey("LibraryId");
 
-                    b.HasOne("LibraryUser", null)
+                    b.HasOne("Member", null)
                         .WithMany("BorrowedBooks")
-                        .HasForeignKey("LibraryUserId");
+                        .HasForeignKey("MemberId");
 
                     b.Navigation("Author");
 
@@ -343,8 +365,19 @@ namespace library_management.Migrations
             modelBuilder.Entity("LibraryUser", b =>
                 {
                     b.HasOne("Library", "Library")
-                        .WithMany("Members")
+                        .WithMany()
                         .HasForeignKey("LibraryId");
+
+                    b.Navigation("Library");
+                });
+
+            modelBuilder.Entity("Member", b =>
+                {
+                    b.HasOne("Library", "Library")
+                        .WithMany("Members")
+                        .HasForeignKey("LibraryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Library");
                 });
@@ -368,7 +401,7 @@ namespace library_management.Migrations
                     b.Navigation("WrittenBooks");
                 });
 
-            modelBuilder.Entity("LibraryUser", b =>
+            modelBuilder.Entity("Member", b =>
                 {
                     b.Navigation("BorrowedBooks");
                 });
