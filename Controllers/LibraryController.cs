@@ -22,6 +22,15 @@ public class LibraryController : ControllerBase
     [HttpPost("{libraryId:guid}/add-book/{bookId:guid}")]
     public async Task<ApiGeneralResponse<Boolean>> AddBook([FromRoute] string libraryId, [FromRoute] string bookId, CancellationToken ct)
     {
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            libraryId,
+            AppAuthorizationPolicies.IsLibraryUser
+        );
+
+        if (!authorizationResult.Succeeded)
+            return new ApiGeneralResponse<bool> { Result = false };
+
         var result = await _libraryService.AddBookToLibraryAsync(libraryId, bookId, ct);
         return new ApiGeneralResponse<bool> { Success = result };
     }
@@ -29,10 +38,19 @@ public class LibraryController : ControllerBase
     [HttpGet("{id:guid}/books")]
     public async Task<ApiGeneralResponse<List<BookDTO>>> GetLibraryBooks([FromRoute] string id, [FromQuery] PaginationDto pagination, CancellationToken ct)
     {
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            id,
+            AppAuthorizationPolicies.IsLibraryUser
+        );
+
+        if (!authorizationResult.Succeeded)
+            return new ApiGeneralResponse<List<BookDTO>> { Result = null };
+
         return new ApiGeneralResponse<List<BookDTO>> { Result = await _libraryService.GetLibraryBooksAsync(id, pagination, ct) };
     }
 
-    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpPost]
     public async Task<ApiGeneralResponse<string>> CreateLibrary([FromBody] CreateLibraryDto library, CancellationToken ct)
     {
@@ -40,6 +58,7 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<string> { Result = libraryId };
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpGet]
     public async Task<ApiGeneralResponse<List<LibraryDto>>> GetAllLibraries([FromQuery] PaginationDto? pagination, CancellationToken ct)
     {
@@ -50,6 +69,15 @@ public class LibraryController : ControllerBase
     [HttpPost("{id:guid}/add-member")]
     public async Task<ApiGeneralResponse<bool>> AddMember([FromRoute] string id, [FromBody] MemberDto member, CancellationToken ct)
     {
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            id,
+            AppAuthorizationPolicies.IsLibraryUser
+        );
+
+        if (!authorizationResult.Succeeded)
+            return new ApiGeneralResponse<bool> { Result = false };
+
         return new ApiGeneralResponse<bool> { Result = await _libraryService.AddMember(id, member, ct) };
     }
 
@@ -73,6 +101,15 @@ public class LibraryController : ControllerBase
     [HttpPost("{id:guid}/lend-book")]
     public async Task<ApiGeneralResponse<bool>> LendBook([FromRoute] string id, [FromBody] LendBookDto lendBookData, CancellationToken ct)
     {
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            id,
+            AppAuthorizationPolicies.IsLibraryUser
+        );
+
+        if (!authorizationResult.Succeeded)
+            return new ApiGeneralResponse<bool> { Result = false };
+
         return new ApiGeneralResponse<bool> { Result = await _libraryService.LendBook(id, lendBookData.bookId, lendBookData.memberId, ct) };
     }
 
@@ -80,6 +117,15 @@ public class LibraryController : ControllerBase
     [HttpDelete("{id:guid}/retake-book")]
     public async Task<ApiGeneralResponse<bool>> RetakeBook([FromRoute] string id, [FromBody] RetakeBookDto retakeBookData, CancellationToken ct)
     {
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+           User,
+           id,
+           AppAuthorizationPolicies.IsLibraryUser
+       );
+
+        if (!authorizationResult.Succeeded)
+            return new ApiGeneralResponse<bool> { Result = false };
+
         return new ApiGeneralResponse<bool> { Result = await _libraryService.RetakeBook(id, retakeBookData.bookId, retakeBookData.memberId, ct) };
     }
 
