@@ -19,6 +19,7 @@ public class BooksController : ControllerBase
         _booksDataService = booksDataService;
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [ServiceFilter(typeof(ExecutionTimeFilter))]
     [HttpGet]
     public async Task<List<BookDTO>> GetBooks([FromQuery] PaginationDto? pagination, CancellationToken ct)
@@ -32,7 +33,7 @@ public class BooksController : ControllerBase
             )).ToList();
     }
 
-    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpPost]
     public async Task<Boolean> CreateBookAsync([FromBody] CreateBookDto book, CancellationToken ct)
     {
@@ -45,7 +46,7 @@ public class BooksController : ControllerBase
         return result;
     }
 
-    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpPut("{id:guid}")]
     public async Task<ApiGeneralResponse<CreateBookDto>> UpdateBook([FromRoute] string id, [FromBody] CreateBookDto book, CancellationToken ct)
     {
@@ -67,6 +68,7 @@ public class BooksController : ControllerBase
         return result;
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpGet("{id:guid}")]
     public async Task<ApiGeneralResponse<BookDTO>> GetBook([FromRoute] string id, CancellationToken ct)
     {
@@ -88,6 +90,7 @@ public class BooksController : ControllerBase
         return result;
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpDelete("{id:guid}")]
     public async Task<ApiGeneralResponse<bool>> DeleteBook([FromRoute] string id, CancellationToken ct)
     {
@@ -96,6 +99,7 @@ public class BooksController : ControllerBase
         return result;
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpPost("count-books")]
     public async Task<ApiGeneralResponse<int>> CountBooks([FromQuery] string regex, CancellationToken ct)
     {

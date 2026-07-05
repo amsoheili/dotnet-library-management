@@ -11,13 +11,14 @@ public class AuthorController
         _authorService = authorService;
     }
 
-    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpPost]
     public async Task<ApiGeneralResponse<AuthorDto>> CreateAuthor([FromBody] CreateAuthorDto author, CancellationToken ct)
     {
         return new ApiGeneralResponse<AuthorDto> { Result = await _authorService.CreateAuthorAsync(author, ct) };
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpGet]
     public async Task<ApiGeneralResponse<List<AuthorDto>>> GetAuthors([FromQuery] PaginationDto? pagination, CancellationToken ct)
     {

@@ -52,7 +52,7 @@ Implement feature:
 
 Implement feature:
     each library has it's own admins - Done,
-    each admin can lend or take the books of his own library
+    each admin can lend or take the books of his own library Done
 
 Implement Super admin and granting admin roles - Done
 
