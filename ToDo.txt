@@ -27,7 +27,7 @@ Implement execution time Filter for our apis - Done
 
 Implement Idempotency Middleware - Done
 
-Implement Maintenance Mode Middleware - 
+Implement Maintenance Mode Middleware - Done
 
 Implement Correlation id Middleware
 
@@ -41,9 +41,9 @@ Implement Authentication , use built in .net capabilities - Done
 
 Implement Authorization 
      - role based Done
-     - policy based ( add some custom handlers(AuthorizationHandler)) 
+     - policy based ( add some custom handlers(AuthorizationHandler)) - Done
      - claim based 
-     - resource based 
+     - resource based - Done 
      - permission based
      
 Implement feature:
@@ -59,3 +59,5 @@ Implement Super admin and granting admin roles - Done
 Implement custom Authentication
 
 Custom Hasher service for user passwords - Done
+
+Search param to be able to filter the books or libraries that contain a certain word inside their names

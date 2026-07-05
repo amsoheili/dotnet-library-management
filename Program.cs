@@ -109,6 +109,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<MaintenanceMiddleware>();
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<ApiLoggerMiddleware>();
 app.UseMiddleware<IdempotencyMiddleware>();
