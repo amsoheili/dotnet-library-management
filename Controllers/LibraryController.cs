@@ -35,8 +35,9 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<bool> { Success = result };
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpGet("{id:guid}/books")]
-    public async Task<ApiGeneralResponse<List<BookDTO>>> GetLibraryBooks([FromRoute] string id, [FromQuery] PaginationDto pagination, CancellationToken ct)
+    public async Task<ApiGeneralResponse<List<BookDTO>>> GetLibraryBooks([FromRoute] string id, [FromQuery] string? search, [FromQuery] PaginationDto pagination, CancellationToken ct)
     {
         var authorizationResult = await _authorizationService.AuthorizeAsync(
             User,
@@ -47,7 +48,7 @@ public class LibraryController : ControllerBase
         if (!authorizationResult.Succeeded)
             return new ApiGeneralResponse<List<BookDTO>> { Result = null };
 
-        return new ApiGeneralResponse<List<BookDTO>> { Result = await _libraryService.GetLibraryBooksAsync(id, pagination, ct) };
+        return new ApiGeneralResponse<List<BookDTO>> { Result = await _libraryService.GetLibraryBooksAsync(id, search, pagination, ct) };
     }
 
     [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
@@ -60,9 +61,9 @@ public class LibraryController : ControllerBase
 
     [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [HttpGet]
-    public async Task<ApiGeneralResponse<List<LibraryDto>>> GetAllLibraries([FromQuery] PaginationDto? pagination, CancellationToken ct)
+    public async Task<ApiGeneralResponse<List<LibraryDto>>> GetAllLibraries([FromQuery] string? search, [FromQuery] PaginationDto? pagination, CancellationToken ct)
     {
-        return new ApiGeneralResponse<List<LibraryDto>> { Result = await _libraryService.GetAllLibrariesAsync(ct) };
+        return new ApiGeneralResponse<List<LibraryDto>> { Result = await _libraryService.GetAllLibrariesAsync(search, pagination, ct) };
     }
 
     [Authorize(Roles = nameof(UserRolesEnum.Admin))]
@@ -83,7 +84,7 @@ public class LibraryController : ControllerBase
 
     [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpGet("{id:guid}/members")]
-    public async Task<ApiGeneralResponse<List<LibraryUserDto>>> GetMembers([FromRoute] string id, [FromQuery] PaginationDto pagination, CancellationToken ct)
+    public async Task<ApiGeneralResponse<List<LibraryUserDto>>> GetMembers([FromRoute] string id, [FromQuery] string? search, [FromQuery] PaginationDto pagination, CancellationToken ct)
     {
         var authorizationResult = await _authorizationService.AuthorizeAsync(
             User,
@@ -94,7 +95,7 @@ public class LibraryController : ControllerBase
         if (!authorizationResult.Succeeded)
             return new ApiGeneralResponse<List<LibraryUserDto>> { Result = null };
 
-        return new ApiGeneralResponse<List<LibraryUserDto>> { Result = await _libraryService.GetMembers(id, pagination, ct) };
+        return new ApiGeneralResponse<List<LibraryUserDto>> { Result = await _libraryService.GetMembers(id, search, pagination, ct) };
     }
 
     [Authorize(Roles = nameof(UserRolesEnum.Admin))]

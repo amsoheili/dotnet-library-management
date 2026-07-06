@@ -10,22 +10,19 @@ namespace library_management.Controllers;
 
 [ApiController]
 [Route("books")]
-public class BooksController : ControllerBase
+public class BooksController(
+    ILogger<BooksController> _logger,
+    IBooksDataService _booksDataService
+) : ControllerBase
 {
-    private readonly IBooksDataService _booksDataService;
-
-    public BooksController(IBooksDataService booksDataService)
-    {
-        _booksDataService = booksDataService;
-    }
 
     [Authorize(Roles = nameof(UserRolesEnum.SuperAdmin))]
     [ServiceFilter(typeof(ExecutionTimeFilter))]
     [HttpGet]
-    public async Task<List<BookDTO>> GetBooks([FromQuery] PaginationDto? pagination, CancellationToken ct)
+    public async Task<List<BookDTO>> GetBooks([FromQuery] string? search, [FromQuery] PaginationDto? pagination, CancellationToken ct)
     {
         List<BookDTO> list = new List<BookDTO>([]);
-        var retrievedList = await _booksDataService.GetBooks(pagination, ct);
+        var retrievedList = await _booksDataService.GetBooks(search, pagination, ct);
         return retrievedList.Select(b => new BookDTO(
                 b.Id,
                 b.Title,

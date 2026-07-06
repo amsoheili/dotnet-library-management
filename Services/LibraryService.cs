@@ -2,6 +2,7 @@ using library_management.Data;
 using library_management.DTOs;
 using library_management.Entities;
 using library_management.Services;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -9,17 +10,17 @@ public interface ILibraryService
 {
     public Task<bool> AddBookToLibraryAsync(string libraryId, string bookId, CancellationToken ct);
 
-    public Task<List<BookDTO>> GetLibraryBooksAsync(string id, PaginationDto pagination, CancellationToken ct);
+    public Task<List<BookDTO>> GetLibraryBooksAsync(string id, string? search, PaginationDto? pagination, CancellationToken ct);
 
     public Task<string> CreateLibraryAsync(string fullname, CancellationToken ct);
 
-    public Task<List<LibraryDto>> GetAllLibrariesAsync(CancellationToken ct);
+    public Task<List<LibraryDto>> GetAllLibrariesAsync(string? search, PaginationDto? pagination, CancellationToken ct);
 
     public Task<bool> LendBook(string libraryId, string bookId, string memberId, CancellationToken ct);
 
     public Task<bool> AddMember(string libraryId, MemberDto member, CancellationToken ct);
 
-    public Task<List<LibraryUserDto>> GetMembers(string libraryId, PaginationDto pagination, CancellationToken ct);
+    public Task<List<LibraryUserDto>> GetMembers(string libraryId, string? search, PaginationDto pagination, CancellationToken ct);
 
     public Task<bool> RetakeBook(string libraryId, string bookId, string memberId, CancellationToken ct);
 }
@@ -59,10 +60,14 @@ public class LibraryService : ILibraryService
         return true;
     }
 
-    public async Task<List<BookDTO>> GetLibraryBooksAsync(string id, PaginationDto pagination, CancellationToken ct)
+    public async Task<List<BookDTO>> GetLibraryBooksAsync(string id, string? search, PaginationDto? pagination, CancellationToken ct)
     {
-        return await _context.Books
-            .AsNoTracking()
+        var query = _context.Books.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(b => b.Title.Contains(search));
+
+        return await query
             .Where(b => b.LibraryId == id)
             .Skip((pagination.page - 1) * pagination.pageSize)
             .Take(pagination.pageSize)
@@ -79,17 +84,49 @@ public class LibraryService : ILibraryService
     }
 
 
-    public async Task<List<LibraryDto>> GetAllLibrariesAsync(CancellationToken ct)
+    public async Task<List<LibraryDto>> GetAllLibrariesAsync(string? search, PaginationDto? pagination, CancellationToken ct)
     {
-        var libraryList = await _hybridCache.GetEntry<List<LibraryDto>>(AppInMemoryCacheKeys.LibrariesList);
+        var hasSearch = !string.IsNullOrWhiteSpace(search);
+        var hasPagination = pagination is not null && pagination.page > 0 && pagination.pageSize > 0;
 
-        if (libraryList is null)
+        var readFromCache = !hasSearch && !hasPagination;
+
+        List<LibraryDto> libraryList;
+
+        if (readFromCache)
         {
-            libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync(ct);
+            libraryList = await _hybridCache.GetEntry<List<LibraryDto>>(AppInMemoryCacheKeys.LibrariesList);
 
-            await _hybridCache.SetEntry(AppInMemoryCacheKeys.LibrariesList, libraryList);
+            if (libraryList is null)
+            {
+                libraryList = await _context.Libraries.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync(ct);
 
+                await _hybridCache.SetEntry(AppInMemoryCacheKeys.LibrariesList, libraryList);
+
+            }
         }
+        else
+        {
+            _logger.LogWarning("reading directly");
+            var query = _context.Libraries.AsNoTracking();
+
+            if (hasSearch)
+            {
+                _logger.LogWarning("has search");
+                query = query.Where(l => l.FullName.Contains(search));
+            }
+
+            if (hasPagination)
+            {
+                _logger.LogWarning($"has pagination {pagination.page} {pagination.pageSize}");
+                query = query.Skip((pagination.page - 1) * pagination.pageSize)
+                                 .Take(pagination.pageSize);
+            }
+
+
+            libraryList = await query.Select(l => new LibraryDto(l.Id, l.FullName)).ToListAsync(ct);
+        }
+
         return libraryList;
     }
 
@@ -142,9 +179,14 @@ public class LibraryService : ILibraryService
         return true;
     }
 
-    public async Task<List<LibraryUserDto>> GetMembers(string libraryId, PaginationDto pagination, CancellationToken ct)
+    public async Task<List<LibraryUserDto>> GetMembers(string libraryId, string? search, PaginationDto pagination, CancellationToken ct)
     {
-        return await _context.LibraryUsers
+        var query = _context.LibraryUsers.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(m => m.Username.Contains(search) || m.FirstName.Contains(search) || m.LastName.Contains(search));
+
+        return await query
         .Where(m => m.LibraryId == libraryId)
         .Skip((pagination.page - 1) * pagination.pageSize)
         .Take(pagination.page)

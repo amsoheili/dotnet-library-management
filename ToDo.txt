@@ -42,15 +42,15 @@ Implement Authentication , use built in .net capabilities - Done
 Implement Authorization 
      - role based Done
      - policy based ( add some custom handlers(AuthorizationHandler)) - Done
-     - claim based 
+     - claim based Done
      - resource based - Done 
      - permission based
      
-Implement feature:
+Implement feature: -- CANCELL
     user logs in and borrows some books, and retake them
     user can only retake his own book not others books, so we should add a custom policy based AuthorizationHandler 
 
-Implement feature:
+Implement feature: Done
     each library has it's own admins - Done,
     each admin can lend or take the books of his own library Done
 
@@ -60,4 +60,12 @@ Implement custom Authentication
 
 Custom Hasher service for user passwords - Done
 
-Search param to be able to filter the books or libraries that contain a certain word inside their names
+Search param to be able to filter the books or libraries that contain a certain word inside their names - Done
+
+Feature:
+    - each library user has a wallet
+    - each library has a subscription cost per month/year
+    - library users charge their wallet and the subscription cost will be withdraw from their wallet
+    - if library user has not paid their monthly/yearly subscriptin cost, he/she can not borrow books
+    - each user can send/recieve credit through their wallet 
+    - a user can send credit to another user 
