@@ -13,7 +13,10 @@ public interface IUserService
     public Task<LoginUserResponseDto> RefreshToken(RefreshUserRequestDto refreshUserRequestDto);
 
     public UserGetMeDto GetMe();
+
     public Task<bool> GrantAdmin(GrantAdminDto grantAdminDto);
+
+    public Task<bool> IncreaseWalletCredit(AddWalletCreditDto addWalletCreditDto, CancellationToken ct);
 }
 
 public class UserService(
@@ -21,7 +24,8 @@ public class UserService(
     IPasswordHasher<LibraryUser> _passwordHasher,
     ITokenService _tokenService,
     IConfiguration _config,
-    IUserClaimsService _userClaimsService
+    IUserClaimsService _userClaimsService,
+    ILogger<UserService> _logger
 ) : IUserService
 {
     public async Task<string> Register(RegisterUserDto registerUserDto)
@@ -155,4 +159,35 @@ public class UserService(
         return true;
     }
 
+    public async Task<bool> IncreaseWalletCredit(AddWalletCreditDto addWalletCreditDto, CancellationToken ct)
+    {
+        var mutex = new Mutex(false, AppMutexNames.AddWallet);
+
+        if (!mutex.WaitOne(TimeSpan.FromSeconds(10)))
+        {
+            _logger.LogWarning("Another thread is doing the same action");
+            return false;
+        }
+
+        try
+        {
+            var userWallet = await _context.Wallets.SingleOrDefaultAsync(w => w.PersonId == addWalletCreditDto.userId);
+
+            if (userWallet is null)
+            {
+                mutex.ReleaseMutex();
+                mutex.Dispose();
+                return false;
+            }
+
+            userWallet.Balance += addWalletCreditDto.amount;
+        }
+        finally
+        {
+            await _context.SaveChangesAsync();
+            mutex.ReleaseMutex();
+            mutex.Dispose();
+        }
+        return true;
+    }
 }

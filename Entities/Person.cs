@@ -14,7 +14,7 @@ public class Person : BaseEntity
     {
         Wallet = new Wallet
         {
-            Balance = 0.0,
+            Balance = 0.0000m,
             PersonId = Id,
         };
     }

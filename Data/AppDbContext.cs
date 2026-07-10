@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
     public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PersonRole> PersonRoles => Set<PersonRole>();
+    public DbSet<Wallet> Wallets => Set<Wallet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,5 +29,9 @@ public class AppDbContext : DbContext
             .HasMany(m => m.FavoriteBooks)
             .WithMany()
             .UsingEntity(j => j.ToTable("FavoriteBooks"));
+
+        modelBuilder.Entity<Wallet>()
+            .Property(w => w.Balance)
+            .HasPrecision(18, 4);
     }
 }

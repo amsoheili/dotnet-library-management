@@ -41,4 +41,11 @@ public class UserController(
     {
         return new ApiGeneralResponse<bool> { Result = await _userService.GrantAdmin(grantAdminDto) };
     }
+
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
+    [HttpPost("increase-wallet-credit")]
+    public async Task<ApiGeneralResponse<bool>> IncreaseWalletCredit([FromBody] AddWalletCreditDto addWalletCreditDto, CancellationToken ct)
+    {
+        return new ApiGeneralResponse<bool> { Result = await _userService.IncreaseWalletCredit(addWalletCreditDto, ct) };
+    }
 }
