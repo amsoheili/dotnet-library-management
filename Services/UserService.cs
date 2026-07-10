@@ -161,33 +161,19 @@ public class UserService(
 
     public async Task<bool> IncreaseWalletCredit(AddWalletCreditDto addWalletCreditDto, CancellationToken ct)
     {
-        var mutex = new Mutex(false, AppMutexNames.AddWallet);
+        using var transaction = await _context.Database.BeginTransactionAsync(ct);
 
-        if (!mutex.WaitOne(TimeSpan.FromSeconds(10)))
-        {
-            _logger.LogWarning("Another thread is doing the same action");
+        var userWallet = await _context.Wallets.SingleOrDefaultAsync(w => w.PersonId == addWalletCreditDto.userId, ct);
+
+        if (userWallet is null)
             return false;
-        }
 
-        try
-        {
-            var userWallet = await _context.Wallets.SingleOrDefaultAsync(w => w.PersonId == addWalletCreditDto.userId);
+        userWallet.Balance += addWalletCreditDto.amount;
 
-            if (userWallet is null)
-            {
-                mutex.ReleaseMutex();
-                mutex.Dispose();
-                return false;
-            }
+        await _context.SaveChangesAsync(ct);
 
-            userWallet.Balance += addWalletCreditDto.amount;
-        }
-        finally
-        {
-            await _context.SaveChangesAsync();
-            mutex.ReleaseMutex();
-            mutex.Dispose();
-        }
+        await transaction.CommitAsync(ct);
+
         return true;
     }
 }
