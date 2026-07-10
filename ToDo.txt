@@ -64,9 +64,12 @@ Search param to be able to filter the books or libraries that contain a certain 
 
 Feature:
     - each library user has a wallet - Done
+    - library admin is able to increase a user's wallet credit - Done
+    - transactions like increasing wallet credit are saved into a table - Done
+
     - each library has a subscription cost per month/year
-    - library admin is able to increase a user's wallet credit
-    - library users charge their wallet and the subscription cost will be withdraw from their wallet
+    - the subscription cost will be withdraw from library users automatically wallet
     - if library user has not paid their monthly/yearly subscriptin cost, he/she can not borrow books
+    
     - each user can send/recieve credit through their wallet 
     - a user can send credit to another user 

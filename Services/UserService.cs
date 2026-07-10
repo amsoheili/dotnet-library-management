@@ -170,6 +170,14 @@ public class UserService(
 
         userWallet.Balance += addWalletCreditDto.amount;
 
+        await _context.WalletTransactions.AddAsync(new WalletTransaction
+        {
+            Amount = addWalletCreditDto.amount,
+            Date = DateTime.UtcNow,
+            TransactionType = TransactionTypeEnum.Increase,
+            WalletId = userWallet.Id
+        }, ct);
+
         await _context.SaveChangesAsync(ct);
 
         await transaction.CommitAsync(ct);
