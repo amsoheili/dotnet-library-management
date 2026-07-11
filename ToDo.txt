@@ -67,7 +67,10 @@ Feature:
     - library admin is able to increase a user's wallet credit - Done
     - transactions like increasing wallet credit are saved into a table - Done
 
-    - each library has a subscription cost per month/year
+    - each library has a subscription plan - Done
+    - each subscription plan has monthly and yearly costs - Done
+    - (bonus) a library can have different kinds of subscriptions for example gold, diamond or ...
+
     - the subscription cost will be withdraw from library users automatically wallet
     - if library user has not paid their monthly/yearly subscriptin cost, he/she can not borrow books
     

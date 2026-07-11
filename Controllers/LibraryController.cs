@@ -130,4 +130,11 @@ public class LibraryController : ControllerBase
         return new ApiGeneralResponse<bool> { Result = await _libraryService.RetakeBook(id, retakeBookData.bookId, retakeBookData.memberId, ct) };
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
+    [HttpPost("{id:guid}/subscription-plan")]
+    public async Task<ApiGeneralResponse<bool>> AddSubscriptionPlan([FromRoute] string id, [FromBody] AddLibrarySubscriptionPlanDto subscriptionPlan, CancellationToken ct)
+    {
+        return new ApiGeneralResponse<bool> { Result = await _libraryService.AddSubscriptionPlan(id, subscriptionPlan, ct) };
+    }
+
 }

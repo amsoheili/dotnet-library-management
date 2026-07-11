@@ -7,4 +7,5 @@ public class Library : BaseEntity
     public List<Book>? Books { get; set; }
     public List<LibraryUser>? Members { get; set; }
     public List<BorrowedBook>? LentBooks { get; set; }
+    public LibrarySubscription? LibrarySubscriptionPlan { get; set; }
 }

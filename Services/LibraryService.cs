@@ -23,6 +23,8 @@ public interface ILibraryService
     public Task<List<LibraryUserDto>> GetMembers(string libraryId, string? search, PaginationDto pagination, CancellationToken ct);
 
     public Task<bool> RetakeBook(string libraryId, string bookId, string memberId, CancellationToken ct);
+
+    public Task<bool> AddSubscriptionPlan(string libraryId, AddLibrarySubscriptionPlanDto subscriptionPlan, CancellationToken ct);
 }
 
 public class LibraryService : ILibraryService
@@ -205,6 +207,23 @@ public class LibraryService : ILibraryService
 
         await _context.SaveChangesAsync(ct);
 
+        return true;
+    }
+
+    public async Task<bool> AddSubscriptionPlan(string libraryId, AddLibrarySubscriptionPlanDto subscriptionPlan, CancellationToken ct)
+    {
+        var subscriptionExists = await _context.LibrarySubscriptions
+                                    .AnyAsync(ls => ls.MonthlyCost == subscriptionPlan.monthlyCost && ls.YearlyCost == subscriptionPlan.yearlyCost, ct);
+        if (subscriptionExists)
+            return false;
+
+        await _context.LibrarySubscriptions.AddAsync(new LibrarySubscription
+        {
+            MonthlyCost = subscriptionPlan.monthlyCost,
+            YearlyCost = subscriptionPlan.yearlyCost,
+            LibraryId = libraryId
+        }, ct);
+        await _context.SaveChangesAsync(ct);
         return true;
     }
 }
