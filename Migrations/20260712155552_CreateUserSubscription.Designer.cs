@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using library_management.Data;
 
@@ -11,9 +12,11 @@ using library_management.Data;
 namespace library_management.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260712155552_CreateUserSubscription")]
+    partial class CreateUserSubscription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -212,43 +215,6 @@ namespace library_management.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("UserSubscription", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<bool>("AutoRenewal")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("BillingPeriod")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EndAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("LibrarySubscriptionId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("LibraryUserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime>("StartAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LibrarySubscriptionId");
-
-                    b.HasIndex("LibraryUserId");
-
-                    b.ToTable("UserSubscriptions");
-                });
-
             modelBuilder.Entity("Wallet", b =>
                 {
                     b.Property<string>("Id")
@@ -342,6 +308,9 @@ namespace library_management.Migrations
                     b.Property<string>("LibraryId")
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("LibrarySubscriptionId")
+                        .HasColumnType("varchar(255)");
+
                     b.Property<DateTime?>("MembershipStart")
                         .HasColumnType("datetime(6)");
 
@@ -350,6 +319,8 @@ namespace library_management.Migrations
                         .HasColumnType("longtext");
 
                     b.HasIndex("LibraryId");
+
+                    b.HasIndex("LibrarySubscriptionId");
 
                     b.HasIndex("NationalCode", "LibraryId")
                         .IsUnique();
@@ -441,25 +412,6 @@ namespace library_management.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("UserSubscription", b =>
-                {
-                    b.HasOne("LibrarySubscription", "LibrarySubscription")
-                        .WithMany()
-                        .HasForeignKey("LibrarySubscriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LibraryUser", "LibraryUser")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("LibraryUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("LibrarySubscription");
-
-                    b.Navigation("LibraryUser");
-                });
-
             modelBuilder.Entity("Wallet", b =>
                 {
                     b.HasOne("Person", "Person")
@@ -507,7 +459,13 @@ namespace library_management.Migrations
                         .WithMany("Members")
                         .HasForeignKey("LibraryId");
 
+                    b.HasOne("LibrarySubscription", "LibrarySubscription")
+                        .WithMany()
+                        .HasForeignKey("LibrarySubscriptionId");
+
                     b.Navigation("Library");
+
+                    b.Navigation("LibrarySubscription");
                 });
 
             modelBuilder.Entity("Library", b =>
@@ -537,8 +495,6 @@ namespace library_management.Migrations
             modelBuilder.Entity("LibraryUser", b =>
                 {
                     b.Navigation("BorrowedBooks");
-
-                    b.Navigation("Subscriptions");
                 });
 #pragma warning restore 612, 618
         }

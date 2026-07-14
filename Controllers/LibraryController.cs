@@ -134,7 +134,32 @@ public class LibraryController : ControllerBase
     [HttpPost("{id:guid}/subscription-plan")]
     public async Task<ApiGeneralResponse<bool>> AddSubscriptionPlan([FromRoute] string id, [FromBody] AddLibrarySubscriptionPlanDto subscriptionPlan, CancellationToken ct)
     {
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+           User,
+           id,
+           AppAuthorizationPolicies.IsLibraryUser
+       );
+
+        if (!authorizationResult.Succeeded)
+            return new ApiGeneralResponse<bool> { Result = false };
+
         return new ApiGeneralResponse<bool> { Result = await _libraryService.AddSubscriptionPlan(id, subscriptionPlan, ct) };
+    }
+
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
+    [HttpPost("{id:guid}/activate-subscription")]
+    public async Task<ApiGeneralResponse<bool>> ActivateUserSubscriptionPlan([FromRoute] string id, [FromBody] ActivateUserSubscriptionPlanDto activateUserSubscriptionPlanDto, CancellationToken ct)
+    {
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+           User,
+           id,
+           AppAuthorizationPolicies.IsLibraryUser
+       );
+
+        if (!authorizationResult.Succeeded)
+            return new ApiGeneralResponse<bool> { Result = false };
+
+        return new ApiGeneralResponse<bool> { Result = await _libraryService.ActivateUserSubscriptionPlan(id, activateUserSubscriptionPlanDto, ct) };
     }
 
 }

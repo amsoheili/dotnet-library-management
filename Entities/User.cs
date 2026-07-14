@@ -9,7 +9,5 @@ public class LibraryUser : Person
     public DateTime? MembershipStart { get; set; }
     public List<Book>? BorrowedBooks { get; set; }
     public List<Book>? FavoriteBooks { get; set; }
-
-    public string? LibrarySubscriptionId { get; set; }
-    public LibrarySubscription? LibrarySubscription { get; set; }
+    public List<UserSubscription>? Subscriptions { get; set; }
 }

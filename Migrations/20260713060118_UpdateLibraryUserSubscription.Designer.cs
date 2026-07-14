@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using library_management.Data;
 
@@ -11,9 +12,11 @@ using library_management.Data;
 namespace library_management.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260713060118_UpdateLibraryUserSubscription")]
+    partial class UpdateLibraryUserSubscription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -244,7 +247,8 @@ namespace library_management.Migrations
 
                     b.HasIndex("LibrarySubscriptionId");
 
-                    b.HasIndex("LibraryUserId");
+                    b.HasIndex("LibraryUserId")
+                        .IsUnique();
 
                     b.ToTable("UserSubscriptions");
                 });
@@ -450,8 +454,8 @@ namespace library_management.Migrations
                         .IsRequired();
 
                     b.HasOne("LibraryUser", "LibraryUser")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("LibraryUserId")
+                        .WithOne("UserSubscription")
+                        .HasForeignKey("UserSubscription", "LibraryUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -538,7 +542,7 @@ namespace library_management.Migrations
                 {
                     b.Navigation("BorrowedBooks");
 
-                    b.Navigation("Subscriptions");
+                    b.Navigation("UserSubscription");
                 });
 #pragma warning restore 612, 618
         }

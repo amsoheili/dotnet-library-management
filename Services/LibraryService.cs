@@ -25,6 +25,8 @@ public interface ILibraryService
     public Task<bool> RetakeBook(string libraryId, string bookId, string memberId, CancellationToken ct);
 
     public Task<bool> AddSubscriptionPlan(string libraryId, AddLibrarySubscriptionPlanDto subscriptionPlan, CancellationToken ct);
+
+    public Task<bool> ActivateUserSubscriptionPlan(string libraryId, ActivateUserSubscriptionPlanDto activateUserSubscriptionPlanDto, CancellationToken ct);
 }
 
 public class LibraryService : ILibraryService
@@ -223,6 +225,51 @@ public class LibraryService : ILibraryService
             YearlyCost = subscriptionPlan.yearlyCost,
             LibraryId = libraryId
         }, ct);
+        await _context.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<bool> ActivateUserSubscriptionPlan(
+        string libraryId,
+        ActivateUserSubscriptionPlanDto activateUserSubscriptionPlanDto,
+        CancellationToken ct)
+    {
+        var libraryUser = await _context.LibraryUsers
+                        .Include(u => u.Subscriptions)
+                        .SingleOrDefaultAsync(u =>
+                            u.Id == activateUserSubscriptionPlanDto.userId &&
+                            u.LibraryId == libraryId);
+
+        if (libraryUser is null)
+            return false;
+
+        var hasActiveSubscription = (libraryUser.Subscriptions is not null) && libraryUser.Subscriptions.Count > 0 ?
+                                     libraryUser.Subscriptions.Any(s => s.Status == UserSubscriptionStatus.Active) : false;
+
+        if (hasActiveSubscription)
+            return false;
+
+        DateTime endAt = DateTime.UtcNow;
+        switch (activateUserSubscriptionPlanDto.billingPeriod)
+        {
+            case SubscriptionBillingPeriod.Monthly:
+                endAt = DateTime.UtcNow + TimeSpan.FromDays(30);
+                break;
+            case SubscriptionBillingPeriod.Yearly:
+                endAt = DateTime.UtcNow + TimeSpan.FromDays(365);
+                break;
+
+        }
+        libraryUser.Subscriptions.Add(new UserSubscription
+        {
+            LibraryUserId = activateUserSubscriptionPlanDto.userId,
+            LibrarySubscriptionId = activateUserSubscriptionPlanDto.subscriptionPlanId,
+            BillingPeriod = activateUserSubscriptionPlanDto.billingPeriod,
+            Status = UserSubscriptionStatus.Active,
+            StartAt = DateTime.UtcNow,
+            EndAt = endAt,
+            AutoRenewal = activateUserSubscriptionPlanDto.autoRenewal ?? false
+        });
         await _context.SaveChangesAsync(ct);
         return true;
     }

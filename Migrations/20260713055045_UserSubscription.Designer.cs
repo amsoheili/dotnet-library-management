@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using library_management.Data;
 
@@ -11,9 +12,11 @@ using library_management.Data;
 namespace library_management.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260713055045_UserSubscription")]
+    partial class UserSubscription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -342,6 +345,9 @@ namespace library_management.Migrations
                     b.Property<string>("LibraryId")
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("LibrarySubscriptionId")
+                        .HasColumnType("varchar(255)");
+
                     b.Property<DateTime?>("MembershipStart")
                         .HasColumnType("datetime(6)");
 
@@ -350,6 +356,8 @@ namespace library_management.Migrations
                         .HasColumnType("longtext");
 
                     b.HasIndex("LibraryId");
+
+                    b.HasIndex("LibrarySubscriptionId");
 
                     b.HasIndex("NationalCode", "LibraryId")
                         .IsUnique();
@@ -450,7 +458,7 @@ namespace library_management.Migrations
                         .IsRequired();
 
                     b.HasOne("LibraryUser", "LibraryUser")
-                        .WithMany("Subscriptions")
+                        .WithMany()
                         .HasForeignKey("LibraryUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -507,7 +515,13 @@ namespace library_management.Migrations
                         .WithMany("Members")
                         .HasForeignKey("LibraryId");
 
+                    b.HasOne("LibrarySubscription", "LibrarySubscription")
+                        .WithMany()
+                        .HasForeignKey("LibrarySubscriptionId");
+
                     b.Navigation("Library");
+
+                    b.Navigation("LibrarySubscription");
                 });
 
             modelBuilder.Entity("Library", b =>
@@ -537,8 +551,6 @@ namespace library_management.Migrations
             modelBuilder.Entity("LibraryUser", b =>
                 {
                     b.Navigation("BorrowedBooks");
-
-                    b.Navigation("Subscriptions");
                 });
 #pragma warning restore 612, 618
         }

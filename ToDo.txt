@@ -71,7 +71,9 @@ Feature:
     - each subscription plan has monthly and yearly costs - Done
     - (bonus) a library can have different kinds of subscriptions for example gold, diamond or ...
 
-    - the subscription cost will be withdraw from library users automatically wallet
+    - each user can buy library subscription 
+    - activate auto renewal last bought subscription 
+    - the subscription cost will be withdrawn from library users automatically wallet
     - if library user has not paid their monthly/yearly subscriptin cost, he/she can not borrow books
     
     - each user can send/recieve credit through their wallet 
