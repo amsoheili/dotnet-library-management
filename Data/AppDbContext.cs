@@ -21,6 +21,9 @@ public class AppDbContext : DbContext
     public DbSet<WalletTransaction> WalletTransactions => Set<WalletTransaction>();
     public DbSet<LibrarySubscription> LibrarySubscriptions => Set<LibrarySubscription>();
     public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+    public DbSet<PaymentInvoice> PaymentInvoices => Set<PaymentInvoice>();
+    public DbSet<PersonWallet> PersonWallets => Set<PersonWallet>();
+    public DbSet<LibraryWallet> LibraryWallets => Set<LibraryWallet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

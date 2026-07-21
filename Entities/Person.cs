@@ -8,11 +8,11 @@ public class Person : BaseEntity
     public string PhoneNumber { get; set; }
     public string? Address { get; set; }
     public List<PersonRole> Roles { get; set; }
-    public Wallet Wallet { get; set; }
+    public PersonWallet Wallet { get; set; }
 
     public Person()
     {
-        Wallet = new Wallet
+        Wallet = new PersonWallet
         {
             Balance = 0.0000m,
             PersonId = Id,

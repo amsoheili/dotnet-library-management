@@ -163,7 +163,7 @@ public class UserService(
     {
         using var transaction = await _context.Database.BeginTransactionAsync(ct);
 
-        var userWallet = await _context.Wallets.SingleOrDefaultAsync(w => w.PersonId == addWalletCreditDto.userId, ct);
+        var userWallet = await _context.PersonWallets.SingleOrDefaultAsync(w => w.PersonId == addWalletCreditDto.userId, ct);
 
         if (userWallet is null)
             return false;

@@ -35,6 +35,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordHasher<LibraryUser>, PasswordHasher<LibraryUser>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
