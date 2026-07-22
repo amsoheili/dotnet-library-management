@@ -8,4 +8,6 @@ public enum UserSubscriptionStatus
 {
     Expired,
     Active,
+    PendingForPayment,
+    Cancelled
 }

@@ -80,10 +80,10 @@ Feature:
     - each user can send/recieve credit through their wallet 
     - a user can send credit to another user 
 
-Feature:
-    - Payment system
+Feature: 
+    - Payment system D
     - a user is able to buy something using a certain payment method
-        - for now only wallet is available
-    - create an invoice and then pay that invoice
-    - invoice can be created for different kind of payments
-    - create Order, put that order inside the invoice
+        - for now only wallet is available D
+    - create an invoice and then pay that invoice D
+    - invoice can be created for different kind of payments D
+    - create Order, put that order inside the invoice (i used a generic id) D

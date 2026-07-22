@@ -35,8 +35,11 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordHasher<LibraryUser>, PasswordHasher<LibraryUser>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
-builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 

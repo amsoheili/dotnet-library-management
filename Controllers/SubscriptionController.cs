@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [Route("subscription")]
 public class SubscriptionController(
-    ISubscriptionService _subscriptionService
+    IUserSubscriptionService _subscriptionService
 )
 {
     [Authorize(Roles = nameof(UserRolesEnum.User))]

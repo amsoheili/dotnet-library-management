@@ -1,4 +1,5 @@
 using library_management.Data;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 public interface IPaymentService
@@ -9,7 +10,8 @@ public interface IPaymentService
 public class PaymentService(
     AppDbContext _db,
     IUserClaimsService _userClaimsService,
-    ILogger<PaymentService> _logger
+    ILogger<PaymentService> _logger,
+    IMediator _mediator
 ) : IPaymentService
 {
 
@@ -45,6 +47,15 @@ public class PaymentService(
         destinationWallet.Balance += invoice.Amount;
 
         invoice.status = PaymentInvoiceStatusEnum.Paid;
+
+
+        var succedded = await _mediator.Send(new PaymentInvoicePaidNotification
+        {
+            InvoiceId = invoiceId,
+            PaidAt = DateTime.Now,
+            ProductType = invoice.ProductType,
+            ProductId = invoice.ProductId
+        });
 
         await _db.SaveChangesAsync(ct);
 

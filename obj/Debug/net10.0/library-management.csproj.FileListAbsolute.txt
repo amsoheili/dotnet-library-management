@@ -150,3 +150,5 @@
 /home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/Microsoft.IdentityModel.Tokens.dll
 /home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/System.IdentityModel.Tokens.Jwt.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/MediatR.dll
+/home/amir/Learn dotnet/Web Development/Training/library-management/bin/Debug/net10.0/MediatR.Contracts.dll

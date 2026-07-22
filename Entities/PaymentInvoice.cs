@@ -7,6 +7,7 @@ public class PaymentInvoice : BaseEntity
     public PaymentInvoiceStatusEnum status { get; set; }
 
     public DateTime CreatedAt { get; set; }
+    public DateTime PaidAt { get; set; }
 
     public decimal Amount { get; set; } = 00.00m;
 
@@ -15,5 +16,7 @@ public class PaymentInvoice : BaseEntity
 
     public string DestinationWalletId { get; set; }
 
-    public string SubscriptionId { get; set; }
+    public InvoiceProductType ProductType { get; set; }
+    public string ProductId { get; set; }
+
 }
