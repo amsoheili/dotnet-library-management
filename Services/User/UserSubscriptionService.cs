@@ -5,6 +5,7 @@ public interface IUserSubscriptionService
 {
     public Task<SubscriptionPurchaseResponseDto> Purchase(string subscriptionId, PurchaseSubscriptionPlanDto purchaseSubscriptionPlanDto, CancellationToken ct);
     public Task<bool> ActivateSubscription(string userSubscriptionId, CancellationToken ct);
+    public Task<PaymentInvoice> CreateSubscriptionInvoice(string userId, string subscriptionId, PurchaseSubscriptionPlanDto purchaseSubscriptionPlanDto, CancellationToken ct);
 }
 
 public class UserSubscriptionService(
@@ -49,6 +50,11 @@ public class UserSubscriptionService(
         if (userId is null)
             return new(null);
 
+        return new((await CreateSubscriptionInvoice(userId, subscriptionId, purchaseSubscriptionPlanDto, ct)).Id);
+    }
+
+    public async Task<PaymentInvoice> CreateSubscriptionInvoice(string userId, string subscriptionId, PurchaseSubscriptionPlanDto purchaseSubscriptionPlanDto, CancellationToken ct)
+    {
         var userSubscriptions = await _db.UserSubscriptions
                        .Where(u => u.LibraryUserId == userId)
                        .ToListAsync(ct);
@@ -57,7 +63,7 @@ public class UserSubscriptionService(
                                      userSubscriptions.Any(s => s.Status == UserSubscriptionStatus.Active) : false;
 
         if (hasActiveSubscription)
-            return new(null);
+            return null;
 
         var pendingSubscriptions = await _db.UserSubscriptions
                                     .Where(s => s.LibraryUserId == userId && s.Status == UserSubscriptionStatus.PendingForPayment)
@@ -72,7 +78,7 @@ public class UserSubscriptionService(
                             .SingleOrDefaultAsync(s => s.Id == subscriptionId, ct);
 
         if (subscription is null)
-            return new(null);
+            return null;
 
         DateTime endAt = DateTime.UtcNow;
         decimal amount;
@@ -87,7 +93,7 @@ public class UserSubscriptionService(
                 endAt = DateTime.UtcNow + TimeSpan.FromDays(365);
                 break;
             default:
-                return new(null);
+                return null;
         }
 
         var userSubscription = new UserSubscription
@@ -118,6 +124,6 @@ public class UserSubscriptionService(
 
         await _db.SaveChangesAsync(ct);
 
-        return new(invoice.Id);
+        return invoice;
     }
 }

@@ -82,6 +82,7 @@ builder.Services.AddScoped<IAuthorizationHandler, LibraryUserAccessHandler>();
 
 // jobs
 // builder.Services.AddHostedService<BookDeptReminder>();
+builder.Services.AddHostedService<AutoRenewalSubscription>();
 
 //
 builder.Services.AddStackExchangeRedisCache(options =>

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 public interface IPaymentService
 {
-    public Task<bool> VerifyByWallet(string invoiceId, CancellationToken ct);
+    public Task<bool> VerifyByWallet(string? userId, string invoiceId, CancellationToken ct);
 }
 
 public class PaymentService(
@@ -19,13 +19,21 @@ public class PaymentService(
     // return the data of invoice
 
     // verify the payment of invoice by wallet
-    public async Task<bool> VerifyByWallet(string invoiceId, CancellationToken ct)
+    public async Task<bool> VerifyByWallet(string? userId, string invoiceId, CancellationToken ct)
     {
+        var claimUserId = _userClaimsService.GetUserId();
+
+        if (userId is null)
+        {
+            if (claimUserId is null)
+                return false;
+
+            userId = claimUserId;
+        }
+
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
-            var userId = _userClaimsService.GetUserId();
-
             var invoice = await _db.PaymentInvoices.SingleOrDefaultAsync(i =>
                             i.Id == invoiceId &&
                             i.PersonId == userId &&
@@ -52,7 +60,7 @@ public class PaymentService(
             invoice.status = PaymentInvoiceStatusEnum.Paid;
 
 
-            var succedded = await _mediator.Send(new PaymentInvoicePaidNotification
+            var succeeded = await _mediator.Send(new PaymentInvoicePaidNotification
             {
                 InvoiceId = invoiceId,
                 PaidAt = DateTime.Now,
@@ -60,7 +68,7 @@ public class PaymentService(
                 ProductId = invoice.ProductId
             });
 
-            if (!succedded)
+            if (!succeeded)
                 return false;
 
             await _db.SaveChangesAsync(ct);

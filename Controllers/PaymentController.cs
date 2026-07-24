@@ -12,7 +12,7 @@ public class PaymentController(
     [HttpPost("verify-by-wallet/{invoiceId}")]
     public async Task<ApiGeneralResponse<bool>> VerifyInvoiceByWallet([FromRoute] string invoiceId, CancellationToken ct)
     {
-        return new ApiGeneralResponse<bool> { Result = await _paymentService.VerifyByWallet(invoiceId, ct) };
+        return new ApiGeneralResponse<bool> { Result = await _paymentService.VerifyByWallet(null, invoiceId, ct) };
     }
 
 

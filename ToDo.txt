@@ -73,8 +73,8 @@ Feature:
 
     - users' subscription can activate by admin - Done
     - each user can buy library subscription - Done
-    - activate auto renewal last bought subscription 
-    - the subscription cost will be withdrawn from library users automatically wallet
+    - activate auto renewal last bought subscription - Done
+    - the subscription cost will be withdrawn from library users automatically wallet - Done
     - if library user has not paid their monthly/yearly subscriptin cost, he/she can not borrow books
     
     - each user can send/recieve credit through their wallet 
@@ -87,3 +87,6 @@ Feature:
     - create an invoice and then pay that invoice D
     - invoice can be created for different kind of payments D
     - create Order, put that order inside the invoice (i used a generic id) D
+
+Performance:
+    - refactor the auto renewal job (less transactions load)
