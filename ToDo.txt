@@ -46,7 +46,7 @@ Implement Authorization
      - resource based - Done 
      - permission based
      
-Implement feature: -- CANCELL
+Implement feature: -- 
     user logs in and borrows some books, and retake them
     user can only retake his own book not others books, so we should add a custom policy based AuthorizationHandler 
 
